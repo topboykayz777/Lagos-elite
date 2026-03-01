@@ -15,8 +15,8 @@ export async function POST(req: Request) {
 
     const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
     
-    // 'gemini-1.5-flash-latest' is the most stable identifier to avoid v1/v1beta mismatches
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
+    // Using the standard model name instead of the alias to avoid version mismatches
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
     const result = await model.generateContent({
       contents: [{ role: "user", parts: [{ text: prompt }] }],
@@ -40,7 +40,7 @@ export async function POST(req: Request) {
     
     const errorMessage = error.message || "Unknown Gemini Error";
     return NextResponse.json({ 
-      error: `Gemini Error: ${errorMessage}. If this is a 404, ensure your API key has 'Gemini API' enabled in Google AI Studio.` 
+      error: `Gemini Error: ${errorMessage}. Ensure your API key is valid and has Gemini API enabled.` 
     }, { status: 500 });
   }
 }
