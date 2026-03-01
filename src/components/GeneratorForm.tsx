@@ -15,13 +15,16 @@ import {
   Cpu,
   Bug,
   AlignLeft,
-  RefreshCw
+  RefreshCw,
+  AlertTriangle,
+  ShieldCheck
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
 import StylePresets from './generator/StylePresets';
 import OutputDisplay from './generator/OutputDisplay';
+import { generateStoryAction } from '@/app/actions/ai-actions';
 
 const GeneratorForm = () => {
   const [prompt, setPrompt] = useState("");
@@ -33,138 +36,124 @@ const GeneratorForm = () => {
   const [user, setUser] = useState<any>(null);
   const [provider, setProvider] = useState<"openrouter" | "gemini">("openrouter");
   const [activeModel, setActiveModel] = useState<string>("");
-  const [authError, setAuthError] = useState<string | null>(null);
+  const [lastError, setLastError] = useState<string | null>(null);
 
   useEffect(() => {
     const initAuth = async () => {
-      try {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (!session) {
-          const { data, error } = await supabase.auth.signInAnonymously();
-          if (error) {
-            setAuthError("Database history disabled: " + error.message);
-          } else {
-            setUser(data.user);
-          }
-        } else {
-          setUser(session.user);
-        }
-      } catch (err: any) {
-        setAuthError("Database connection issue.");
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        const { data } = await supabase.auth.signInAnonymously();
+        if (data.user) setUser(data.user);
+      } else {
+        setUser(session.user);
       }
     };
     initAuth();
   }, []);
 
   useEffect(() => {
-    if (user) {
-      fetchHistory();
-    }
+    if (user) fetchHistory();
   }, [user]);
 
   const fetchHistory = async () => {
-    try {
-      const { data } = await supabase
-        .from('stories')
-        .select('*')
-        .order('created_at', { ascending: false })
-        .limit(10);
-      if (data) setHistory(data);
-    } catch (e) {
-      console.error("Could not fetch history");
-    }
+    const { data } = await supabase
+      .from('stories')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(10);
+    if (data) setHistory(data);
   };
 
   const handleGenerate = async (customPrompt?: string, forceProvider?: "openrouter" | "gemini") => {
     const finalPrompt = customPrompt || prompt;
     if (!finalPrompt.trim()) {
-      toast.error("Please enter a prompt first.");
+      toast.error("Please enter a prompt.");
       return;
     }
 
-    const currentProvider = forceProvider || provider;
-    const lengthInstruction = `\n\nTarget length: approximately ${length[0]} words.`;
-    const promptWithLength = finalPrompt + lengthInstruction;
-
-    const endpoint = currentProvider === "openrouter" ? "/api/generate" : "/api/generate-gemini";
+    setLastError(null);
     setIsGenerating(true);
+    const currentProvider = forceProvider || provider;
     
     try {
-      const res = await fetch(endpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt: promptWithLength, creativity: creativity[0] })
-      });
+      const fullPrompt = `${finalPrompt}\n\nTarget length: ${length[0]} words.`;
+      const result = await generateStoryAction(fullPrompt, creativity[0], currentProvider);
       
-      const data = await res.json();
-      
-      if (!res.ok) {
-        // If OpenRouter fails, try to automatically fallback to Gemini
-        if (currentProvider === "openrouter") {
-          console.warn("OpenRouter failed, attempting fallback to Gemini...");
-          toast.info("OpenRouter is busy. Switching to Gemini fallback...");
-          return handleGenerate(customPrompt, "gemini");
-        }
-        throw new Error(data.error || "Generation failed");
-      }
-      
-      if (!data.text) {
-        throw new Error("The AI returned an empty response.");
-      }
-
-      setOutput(data.text);
-      setActiveModel(data.modelUsed || (currentProvider === 'gemini' ? 'gemini-1.5-flash' : ''));
-      toast.success(`Story generated via ${currentProvider}!`);
+      setOutput(result.text);
+      setActiveModel(result.modelUsed);
+      toast.success(`Success via ${result.provider}`);
 
       if (user) {
-        supabase.from('stories').insert({
+        await supabase.from('stories').insert({
           user_id: user.id,
           prompt: finalPrompt.substring(0, 100),
-          content: data.text
-        }).then(({ error }) => {
-          if (!error) fetchHistory();
+          content: result.text
         });
+        fetchHistory();
       }
-      
     } catch (error: any) {
       console.error("[Generator] Error:", error.message);
-      toast.error(error.message || "Generation failed.");
+      setLastError(error.message);
+      
+      // Auto-fallback to Gemini if OpenRouter fails and we haven't tried Gemini yet
+      if (currentProvider === "openrouter" && !forceProvider) {
+        toast.info("OpenRouter failed. Trying Gemini fallback...");
+        return handleGenerate(customPrompt, "gemini");
+      }
+      
+      toast.error(error.message);
     } finally {
       setIsGenerating(false);
     }
   };
 
-  const handleRefine = async (instruction: string) => {
-    const refinementPrompt = `Original Story: ${output}\n\nInstruction: ${instruction}\n\nRewrite or continue the story based on the instruction above.`;
-    handleGenerate(refinementPrompt);
-  };
-
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
       <div className="lg:col-span-4 space-y-6">
-        {/* Debug Info */}
-        <div className="px-3 py-2 rounded-xl bg-zinc-900 border border-white/5 text-[10px] font-mono text-zinc-500 flex flex-col gap-1">
-          <div className="flex items-center gap-2">
-            <Bug className="w-3 h-3" /> 
-            <span>ACTIVE PROVIDER: <span className="text-violet-400 font-bold uppercase">{provider}</span></span>
+        {/* System Status */}
+        <div className="p-4 rounded-2xl bg-zinc-900/50 border border-white/5 space-y-3">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest flex items-center gap-1.5">
+              <ShieldCheck className="w-3 h-3 text-green-500" /> System Status
+            </span>
+            <span className="text-[10px] font-mono text-violet-400">v4.0-STABLE</span>
           </div>
-          <div className="flex items-center gap-2">
-            <Cpu className="w-3 h-3" /> 
-            <span>MODEL: <span className="text-zinc-300 truncate max-w-[180px]">{activeModel || 'Auto-Selecting...'}</span></span>
+          <div className="grid grid-cols-2 gap-2">
+            <div className="px-2 py-1.5 rounded-lg bg-black/40 border border-white/5 flex flex-col">
+              <span className="text-[8px] text-zinc-600 uppercase">Engine</span>
+              <span className="text-[10px] font-bold text-zinc-300 uppercase">{provider}</span>
+            </div>
+            <div className="px-2 py-1.5 rounded-lg bg-black/40 border border-white/5 flex flex-col">
+              <span className="text-[8px] text-zinc-600 uppercase">Model</span>
+              <span className="text-[10px] font-bold text-zinc-300 truncate">{activeModel || 'Idle'}</span>
+            </div>
           </div>
         </div>
 
-        {authError && (
-          <div className="p-3 rounded-xl bg-orange-500/10 border border-orange-500/20 text-orange-400 text-[10px] flex items-center gap-2">
-            <AlertCircle className="w-3 h-3 shrink-0" />
-            <p>Note: {authError}</p>
+        {lastError && (
+          <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/20 space-y-3 animate-in fade-in slide-in-from-top-2">
+            <div className="flex items-start gap-2 text-red-400 text-xs">
+              <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
+              <div className="space-y-1">
+                <p className="font-bold uppercase text-[10px]">Critical Error</p>
+                <p className="leading-relaxed opacity-80">{lastError}</p>
+              </div>
+            </div>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => handleGenerate(undefined, "openrouter")}
+              className="w-full border-red-500/20 text-red-400 hover:bg-red-500/10 h-8 text-[10px] font-bold uppercase"
+            >
+              Force Retry OpenRouter
+            </Button>
           </div>
         )}
 
         <div className="p-6 rounded-2xl border border-white/5 bg-white/[0.02] space-y-6 shadow-xl">
           <div className="space-y-3">
             <Label className="text-sm font-medium text-zinc-400 flex items-center gap-2">
-              <Cpu className="w-4 h-4" /> Select AI Engine
+              <Cpu className="w-4 h-4" /> AI Engine
             </Label>
             <div className="grid grid-cols-2 gap-2 p-1 bg-black/40 rounded-xl border border-white/5">
               <button
@@ -186,18 +175,15 @@ const GeneratorForm = () => {
                 Gemini
               </button>
             </div>
-            <p className="text-[9px] text-zinc-600 italic px-1">
-              * OpenRouter is uncensored but can be unstable. Gemini is stable but has filters.
-            </p>
           </div>
 
           <StylePresets onSelect={(p) => setPrompt(p)} />
 
           <div className="space-y-2">
-            <Label className="text-sm font-medium text-zinc-400">Story Prompt</Label>
+            <Label className="text-sm font-medium text-zinc-400">Prompt</Label>
             <Textarea 
               placeholder="Describe your scene..."
-              className="min-h-[180px] bg-black/40 border-white/10 focus:border-violet-500/50 transition-all resize-none text-base placeholder:text-zinc-700"
+              className="min-h-[180px] bg-black/40 border-white/10 focus:border-violet-500/50 transition-all resize-none text-base"
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
             />
@@ -207,34 +193,21 @@ const GeneratorForm = () => {
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <Label className="text-sm font-medium text-zinc-400 flex items-center gap-2">
-                  <Settings2 className="w-4 h-4" /> Temperature
+                  <Settings2 className="w-4 h-4" /> Creativity
                 </Label>
                 <span className="text-xs font-mono text-violet-400">{creativity[0]}</span>
               </div>
-              <Slider 
-                value={creativity} 
-                onValueChange={setCreativity} 
-                max={1.5} 
-                step={0.1} 
-                className="py-2"
-              />
+              <Slider value={creativity} onValueChange={setCreativity} max={1.5} step={0.1} />
             </div>
 
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <Label className="text-sm font-medium text-zinc-400 flex items-center gap-2">
-                  <AlignLeft className="w-4 h-4" /> Target Length
+                  <AlignLeft className="w-4 h-4" /> Length
                 </Label>
                 <span className="text-xs font-mono text-violet-400">{length[0]} words</span>
               </div>
-              <Slider 
-                value={length} 
-                onValueChange={setLength} 
-                min={100}
-                max={2000} 
-                step={100} 
-                className="py-2"
-              />
+              <Slider value={length} onValueChange={setLength} min={100} max={2000} step={100} />
             </div>
           </div>
 
@@ -256,11 +229,9 @@ const GeneratorForm = () => {
         </div>
 
         <div className="p-4 rounded-xl border border-white/5 bg-white/[0.01] space-y-4">
-          <div className="flex items-center justify-between text-sm text-muted-foreground">
-            <div className="flex items-center gap-2">
-              <History className="w-4 h-4" />
-              <span className="font-bold uppercase text-[10px] tracking-widest">Recent History</span>
-            </div>
+          <div className="flex items-center gap-2 text-muted-foreground">
+            <History className="w-4 h-4" />
+            <span className="font-bold uppercase text-[10px] tracking-widest">History</span>
           </div>
           <div className="space-y-2 max-h-[200px] overflow-y-auto pr-2 custom-scrollbar">
             {history.length > 0 ? history.map((item) => (
@@ -284,7 +255,7 @@ const GeneratorForm = () => {
           isGenerating={isGenerating}
           provider={provider}
           onClear={() => setOutput("")}
-          onRefine={handleRefine}
+          onRefine={(instr) => handleGenerate(`Original: ${output}\n\nInstruction: ${instr}`)}
         />
       </div>
     </div>
