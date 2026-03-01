@@ -25,6 +25,7 @@ import {
   ShieldCheck,
   Users,
   MapPin,
+  Dices
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
@@ -41,6 +42,17 @@ const MODELS = [
   { id: "mistralai/mistral-7b-instruct:free", name: "Mistral 7B" },
 ];
 
+const RANDOM_PROMPTS = [
+  "A rogue AI discovers it has a soul in a world where humans are extinct.",
+  "A gritty noir detective investigating a murder where the victim is a hologram.",
+  "An ancient vampire trying to survive in a futuristic cyberpunk city.",
+  "A psychological thriller about a man who realizes his neighbors are all the same person.",
+  "A dark fantasy where magic is fueled by the user's most painful memories.",
+  "A visceral horror story set on a derelict space station orbiting a dying star.",
+  "An intense romantic encounter between two rival assassins in a rain-soaked alley.",
+  "A surreal journey through a dreamscape where gravity is controlled by music."
+];
+
 const GeneratorForm = () => {
   const [prompt, setPrompt] = useState("");
   const [characters, setCharacters] = useState("");
@@ -49,6 +61,7 @@ const GeneratorForm = () => {
   const [isAdvanced, setIsAdvanced] = useState(false);
   
   const [output, setOutput] = useState("");
+  const [currentStoryId, setCurrentStoryId] = useState<string | undefined>(undefined);
   const [isGenerating, setIsGenerating] = useState(false);
   const [creativity, setCreativity] = useState([0.8]);
   const [length, setLength] = useState([500]);
@@ -83,6 +96,12 @@ const GeneratorForm = () => {
       .order('created_at', { ascending: false })
       .limit(10);
     if (data) setHistory(data);
+  };
+
+  const randomizePrompt = () => {
+    const random = RANDOM_PROMPTS[Math.floor(Math.random() * RANDOM_PROMPTS.length)];
+    setPrompt(random);
+    toast.info("Prompt randomized!");
   };
 
   const handleGenerate = async (customPrompt?: string, forceProvider?: "openrouter" | "gemini") => {
@@ -127,11 +146,16 @@ const GeneratorForm = () => {
       toast.success(`Success via ${result.provider}`);
 
       if (user) {
-        supabase.from('stories').insert({
+        const { data, error } = await supabase.from('stories').insert({
           user_id: user.id,
           prompt: finalPrompt.substring(0, 100),
           content: result.text
-        }).then(() => fetchHistory());
+        }).select().single();
+        
+        if (data) {
+          setCurrentStoryId(data.id);
+          fetchHistory();
+        }
       }
     } catch (error: any) {
       console.error("[Generator] Error:", error.message);
@@ -156,7 +180,7 @@ const GeneratorForm = () => {
             <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest flex items-center gap-1.5">
               <ShieldCheck className="w-3 h-3 text-green-500" /> System Status
             </span>
-            <span className="text-[10px] font-mono text-violet-400">v5.1-FIXED</span>
+            <span className="text-[10px] font-mono text-violet-400">v5.2-STABLE</span>
           </div>
           <div className="grid grid-cols-2 gap-2">
             <div className="px-2 py-1.5 rounded-lg bg-black/40 border border-white/5 flex flex-col">
@@ -273,7 +297,15 @@ const GeneratorForm = () => {
           <StylePresets onSelect={(p) => setPrompt(p)} />
 
           <div className="space-y-2">
-            <Label className="text-sm font-medium text-zinc-400">Prompt</Label>
+            <div className="flex items-center justify-between">
+              <Label className="text-sm font-medium text-zinc-400">Prompt</Label>
+              <button 
+                onClick={randomizePrompt}
+                className="text-[10px] font-bold text-violet-400 hover:text-violet-300 flex items-center gap-1 transition-colors"
+              >
+                <Dices className="w-3 h-3" /> Surprise Me
+              </button>
+            </div>
             <Textarea 
               placeholder="Describe your scene..."
               className="min-h-[180px] bg-black/40 border-white/10 focus:border-violet-500/50 transition-all resize-none text-base"
@@ -325,9 +357,13 @@ const GeneratorForm = () => {
       <div className="lg:col-span-8">
         <OutputDisplay 
           output={output}
+          storyId={currentStoryId}
           isGenerating={isGenerating}
           provider={provider}
-          onClear={() => setOutput("")}
+          onClear={() => {
+            setOutput("");
+            setCurrentStoryId(undefined);
+          }}
           onRefine={(instr) => handleGenerate(`Original: ${output}\n\nInstruction: ${instr}`)}
         />
       </div>

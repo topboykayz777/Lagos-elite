@@ -15,11 +15,13 @@ import {
   Loader2,
   Download,
   Type,
-  Clock
+  Clock,
+  Share2
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
 import Link from 'next/link';
+import ShareDialog from '@/components/generator/ShareDialog';
 
 export default function LibraryPage() {
   const [stories, setStories] = useState<any[]>([]);
@@ -46,6 +48,8 @@ export default function LibraryPage() {
   };
 
   const deleteStory = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this story?")) return;
+    
     const { error } = await supabase
       .from('stories')
       .delete()
@@ -129,14 +133,24 @@ export default function LibraryPage() {
                           <Calendar className="w-3 h-3" />
                           {format(new Date(story.created_at), 'MMM d, yyyy')}
                         </div>
-                        <Button 
-                          variant="ghost" 
-                          size="icon" 
-                          className="h-8 w-8 text-zinc-500 hover:text-red-400 hover:bg-red-400/10 opacity-0 group-hover:opacity-100 transition-opacity"
-                          onClick={() => deleteStory(story.id)}
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
+                        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <ShareDialog 
+                            storyId={story.id} 
+                            trigger={
+                              <Button variant="ghost" size="icon" className="h-8 w-8 text-zinc-500 hover:text-violet-400">
+                                <Share2 className="w-4 h-4" />
+                              </Button>
+                            }
+                          />
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            className="h-8 w-8 text-zinc-500 hover:text-red-400 hover:bg-red-400/10"
+                            onClick={() => deleteStory(story.id)}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
                       </div>
                       <CardTitle className="text-lg line-clamp-2 leading-tight group-hover:text-violet-400 transition-colors">
                         {story.prompt}

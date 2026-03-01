@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { 
   Sparkles, 
@@ -15,23 +15,36 @@ import {
   Minimize2,
   Download,
   FileText,
-  Share2
+  Share2,
+  Zap
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import ShareDialog from './ShareDialog';
 
 interface OutputDisplayProps {
   output: string;
   isGenerating: boolean;
   provider: string;
+  storyId?: string;
   onClear: () => void;
   onRefine: (instruction: string) => void;
 }
 
-const OutputDisplay = ({ output, isGenerating, provider, onClear, onRefine }: OutputDisplayProps) => {
+const OutputDisplay = ({ output, isGenerating, provider, storyId, onClear, onRefine }: OutputDisplayProps) => {
   const [copied, setCopied] = useState(false);
   const [refineInput, setRefineInput] = useState("");
   const [isZenMode, setIsZenMode] = useState(false);
+  const [scanLinePos, setScanLinePos] = useState(0);
+
+  useEffect(() => {
+    if (isGenerating) {
+      const interval = setInterval(() => {
+        setScanLinePos(prev => (prev + 1) % 100);
+      }, 30);
+      return () => clearInterval(interval);
+    }
+  }, [isGenerating]);
 
   const wordCount = output ? output.trim().split(/\s+/).length : 0;
   const readingTime = Math.ceil(wordCount / 200);
@@ -72,14 +85,28 @@ const OutputDisplay = ({ output, isGenerating, provider, onClear, onRefine }: Ou
       "h-full min-h-[600px] rounded-2xl border border-white/5 bg-white/[0.02] flex flex-col overflow-hidden transition-all duration-500",
       isZenMode ? "fixed inset-0 z-[100] bg-[#050505] rounded-none border-none" : "relative"
     )}>
+      {/* Neural Scan Overlay */}
+      {isGenerating && (
+        <div className="absolute inset-0 z-10 pointer-events-none overflow-hidden">
+          <div 
+            className="absolute w-full h-[2px] bg-violet-500/50 shadow-[0_0_15px_rgba(139,92,246,0.5)]"
+            style={{ top: `${scanLinePos}%` }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-violet-500/5 to-transparent opacity-20" />
+        </div>
+      )}
+
       {/* Header */}
       <div className="p-4 border-b border-white/5 flex items-center justify-between bg-white/[0.01]">
         <div className="flex items-center gap-4">
           <span className="text-sm font-medium text-zinc-400">Output</span>
           <div className="h-4 w-[1px] bg-white/10" />
-          <span className="text-xs text-zinc-500">
-            {provider === "openrouter" ? "Unbound-v3-Large" : "Gemini-1.5-Flash"}
-          </span>
+          <div className="flex items-center gap-2">
+            <Zap className={cn("w-3 h-3 text-violet-500", isGenerating && "animate-pulse")} />
+            <span className="text-xs text-zinc-500">
+              {isGenerating ? "Neural Processing..." : (provider === "openrouter" ? "Unbound-v3-Large" : "Gemini-1.5-Flash")}
+            </span>
+          </div>
         </div>
         <div className="flex items-center gap-2">
           {output && (
@@ -92,6 +119,7 @@ const OutputDisplay = ({ output, isGenerating, provider, onClear, onRefine }: Ou
                   <Clock className="w-3 h-3" /> {readingTime} min read
                 </div>
               </div>
+              {storyId && <ShareDialog storyId={storyId} />}
               <Button variant="ghost" size="icon" onClick={downloadMarkdown} className="h-8 w-8 text-zinc-400 hover:text-violet-400" title="Export Markdown">
                 <FileText className="w-4 h-4" />
               </Button>
@@ -117,11 +145,12 @@ const OutputDisplay = ({ output, isGenerating, provider, onClear, onRefine }: Ou
         isZenMode ? "max-w-3xl mx-auto text-2xl py-20" : "text-lg"
       )}>
         {isGenerating ? (
-          <div className="space-y-4 animate-pulse">
-            <div className="h-4 bg-white/5 rounded w-3/4" />
-            <div className="h-4 bg-white/5 rounded w-full" />
-            <div className="h-4 bg-white/5 rounded w-5/6" />
-            <div className="h-4 bg-white/5 rounded w-2/3" />
+          <div className="space-y-6">
+            <div className="h-4 bg-white/5 rounded w-3/4 animate-pulse" />
+            <div className="h-4 bg-white/5 rounded w-full animate-pulse delay-75" />
+            <div className="h-4 bg-white/5 rounded w-5/6 animate-pulse delay-150" />
+            <div className="h-4 bg-white/5 rounded w-2/3 animate-pulse delay-300" />
+            <div className="h-4 bg-white/5 rounded w-4/5 animate-pulse delay-500" />
           </div>
         ) : output ? (
           <div className="prose prose-invert max-w-none animate-in fade-in slide-in-from-bottom-4 duration-700">
