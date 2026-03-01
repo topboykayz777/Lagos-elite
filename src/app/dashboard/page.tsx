@@ -37,7 +37,7 @@ export default function DashboardPage() {
     stories: 0, 
     premium: false, 
     score: 0, 
-    identity: [] 
+    identity: [] as string[] 
   });
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
@@ -73,7 +73,7 @@ export default function DashboardPage() {
           stories: storyCount,
           premium: isPremium,
           score: profileData?.sovereign_score || calculatedScore,
-          identity: profileData?.identity || ['Autonomy', 'Truth', 'Discipline']
+          identity: (profileData?.identity as string[]) || ['Autonomy', 'Truth', 'Discipline']
         });
       }
     } catch (error) {
@@ -101,7 +101,7 @@ export default function DashboardPage() {
     if (error) {
       toast.error("Failed to update identity");
     } else {
-      setStats(prev => ({ ...prev, identity: newIdentity }));
+      setStats(prev => ({ ...prev, identity: newIdentity } as UserStats));
       toast.success("Identity updated");
     }
   };
