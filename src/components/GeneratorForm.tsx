@@ -13,7 +13,8 @@ import {
   Zap,
   AlertCircle,
   Cpu,
-  Bug
+  Bug,
+  AlignLeft
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
@@ -26,9 +27,11 @@ const GeneratorForm = () => {
   const [output, setOutput] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [creativity, setCreativity] = useState([0.8]);
+  const [length, setLength] = useState([500]);
   const [history, setHistory] = useState<any[]>([]);
   const [user, setUser] = useState<any>(null);
   const [provider, setProvider] = useState<"openrouter" | "gemini">("openrouter");
+  const [activeModel, setActiveModel] = useState<string>("");
   const [authError, setAuthError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -78,6 +81,9 @@ const GeneratorForm = () => {
       return;
     }
 
+    const lengthInstruction = `\n\nTarget length: approximately ${length[0]} words.`;
+    const promptWithLength = finalPrompt + lengthInstruction;
+
     const endpoint = provider === "openrouter" ? "/api/generate" : "/api/generate-gemini";
     setIsGenerating(true);
     
@@ -85,21 +91,21 @@ const GeneratorForm = () => {
       const res = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt: finalPrompt, creativity: creativity[0] })
+        body: JSON.stringify({ prompt: promptWithLength, creativity: creativity[0] })
       });
       
       const data = await res.json();
       
       if (!res.ok) {
-        const errorMsg = typeof data.error === 'string' ? data.error : JSON.stringify(data.error) || "Generation failed";
-        throw new Error(errorMsg);
+        throw new Error(data.error || "Generation failed");
       }
       
       if (!data.text) {
-        throw new Error("The AI returned an empty response. Please try again.");
+        throw new Error("The AI returned an empty response.");
       }
 
       setOutput(data.text);
+      if (data.modelUsed) setActiveModel(data.modelUsed);
       toast.success("Story generated!");
 
       if (user) {
@@ -136,7 +142,7 @@ const GeneratorForm = () => {
           </div>
           <div className="flex items-center gap-2">
             <Cpu className="w-3 h-3" /> 
-            <span>MODEL: <span className="text-zinc-300">{provider === 'openrouter' ? 'gemma-2-9b-it:free' : 'gemini-1.5-flash'}</span></span>
+            <span>MODEL: <span className="text-zinc-300 truncate max-w-[180px]">{activeModel || (provider === 'openrouter' ? 'Auto-Fallback' : 'gemini-1.5-flash')}</span></span>
           </div>
         </div>
 
@@ -147,7 +153,7 @@ const GeneratorForm = () => {
           </div>
         )}
 
-        <div className="p-6 rounded-2xl border border-white/5 bg-white/[0.02] space-y-6">
+        <div className="p-6 rounded-2xl border border-white/5 bg-white/[0.02] space-y-6 shadow-xl">
           <div className="space-y-3">
             <Label className="text-sm font-medium text-zinc-400 flex items-center gap-2">
               <Cpu className="w-4 h-4" /> Select AI Engine
@@ -180,32 +186,51 @@ const GeneratorForm = () => {
             <Label className="text-sm font-medium text-zinc-400">Story Prompt</Label>
             <Textarea 
               placeholder="Describe your scene..."
-              className="min-h-[180px] bg-black/40 border-white/10 focus:border-violet-500/50 transition-all resize-none text-base"
+              className="min-h-[180px] bg-black/40 border-white/10 focus:border-violet-500/50 transition-all resize-none text-base placeholder:text-zinc-700"
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
             />
           </div>
 
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <Label className="text-sm font-medium text-zinc-400 flex items-center gap-2">
-                <Settings2 className="w-4 h-4" /> Temperature
-              </Label>
-              <span className="text-xs font-mono text-violet-400">{creativity[0]}</span>
+          <div className="space-y-6">
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <Label className="text-sm font-medium text-zinc-400 flex items-center gap-2">
+                  <Settings2 className="w-4 h-4" /> Temperature
+                </Label>
+                <span className="text-xs font-mono text-violet-400">{creativity[0]}</span>
+              </div>
+              <Slider 
+                value={creativity} 
+                onValueChange={setCreativity} 
+                max={1.5} 
+                step={0.1} 
+                className="py-2"
+              />
             </div>
-            <Slider 
-              value={creativity} 
-              onValueChange={setCreativity} 
-              max={1.5} 
-              step={0.1} 
-              className="py-4"
-            />
+
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <Label className="text-sm font-medium text-zinc-400 flex items-center gap-2">
+                  <AlignLeft className="w-4 h-4" /> Target Length
+                </Label>
+                <span className="text-xs font-mono text-violet-400">{length[0]} words</span>
+              </div>
+              <Slider 
+                value={length} 
+                onValueChange={setLength} 
+                min={100}
+                max={2000} 
+                step={100} 
+                className="py-2"
+              />
+            </div>
           </div>
 
           <Button 
             onClick={() => handleGenerate()}
             disabled={isGenerating}
-            className="w-full bg-violet-600 hover:bg-violet-700 text-white h-12 rounded-xl font-bold text-lg shadow-lg shadow-violet-600/20"
+            className="w-full bg-violet-600 hover:bg-violet-700 text-white h-14 rounded-xl font-black text-lg shadow-lg shadow-violet-600/40 transition-all active:scale-95"
           >
             {isGenerating ? (
               <span className="flex items-center gap-2">
@@ -223,7 +248,7 @@ const GeneratorForm = () => {
           <div className="flex items-center justify-between text-sm text-muted-foreground">
             <div className="flex items-center gap-2">
               <History className="w-4 h-4" />
-              <span>Recent History</span>
+              <span className="font-bold uppercase text-[10px] tracking-widest">Recent History</span>
             </div>
           </div>
           <div className="space-y-2 max-h-[200px] overflow-y-auto pr-2 custom-scrollbar">
@@ -231,9 +256,9 @@ const GeneratorForm = () => {
               <button 
                 key={item.id}
                 onClick={() => { setPrompt(item.prompt); setOutput(item.content); }}
-                className="w-full text-left p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors text-xs truncate border border-white/5"
+                className="w-full text-left p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors text-xs truncate border border-white/5 group"
               >
-                {item.prompt}
+                <span className="text-zinc-500 group-hover:text-violet-400 transition-colors">{item.prompt}</span>
               </button>
             )) : (
               <p className="text-[10px] text-zinc-600 text-center py-4">No history yet</p>
