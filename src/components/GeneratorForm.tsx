@@ -22,7 +22,6 @@ import {
   RefreshCw,
   AlertTriangle,
   ShieldCheck,
-  ChevronDown
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
@@ -37,7 +36,6 @@ const MODELS = [
   { id: "google/gemma-2-9b-it:free", name: "Gemma 2 9B" },
   { id: "mistralai/mistral-7b-instruct:free", name: "Mistral 7B" },
   { id: "gryphe/mythomist-7b:free", name: "MythoMist (Uncensored)" },
-  { id: "undi95/toppy-m-7b:free", name: "Toppy M 7B" },
 ];
 
 const GeneratorForm = () => {
@@ -99,17 +97,20 @@ const GeneratorForm = () => {
         selectedModel === "auto" ? undefined : selectedModel
       );
       
+      if (!result || !result.text) {
+        throw new Error("The AI returned an empty response. Please try again.");
+      }
+
       setOutput(result.text);
       setActiveModel(result.modelUsed);
       toast.success(`Success via ${result.provider}`);
 
-      // Non-blocking DB save
       if (user) {
         supabase.from('stories').insert({
           user_id: user.id,
           prompt: finalPrompt.substring(0, 100),
           content: result.text
-        }).then(() => fetchHistory()).catch(e => console.error("DB Save failed", e));
+        }).then(() => fetchHistory());
       }
     } catch (error: any) {
       console.error("[Generator] Error:", error.message);
@@ -129,7 +130,6 @@ const GeneratorForm = () => {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
       <div className="lg:col-span-4 space-y-6">
-        {/* System Status */}
         <div className="p-4 rounded-2xl bg-zinc-900/50 border border-white/5 space-y-3">
           <div className="flex items-center justify-between">
             <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest flex items-center gap-1.5">
@@ -154,18 +154,13 @@ const GeneratorForm = () => {
             <div className="flex items-start gap-2 text-red-400 text-xs">
               <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
               <div className="space-y-1">
-                <p className="font-bold uppercase text-[10px]">Critical Error</p>
+                <p className="font-bold uppercase text-[10px]">Generation Error</p>
                 <p className="leading-relaxed opacity-80">{lastError}</p>
               </div>
             </div>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={() => handleGenerate(undefined, "openrouter")}
-              className="w-full border-red-500/20 text-red-400 hover:bg-red-500/10 h-8 text-[10px] font-bold uppercase"
-            >
-              Force Retry OpenRouter
-            </Button>
+            <div className="text-[10px] text-zinc-500 italic">
+              Tip: Ensure your API keys are set in the Secrets tab.
+            </div>
           </div>
         )}
 
