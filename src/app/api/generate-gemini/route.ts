@@ -7,16 +7,16 @@ export async function POST(req: Request) {
   try {
     const { prompt, creativity } = await req.json();
 
-    if (!GEMINI_API_KEY || GEMINI_API_KEY === "undefined" || GEMINI_API_KEY.length < 10) {
+    if (!GEMINI_API_KEY || GEMINI_API_KEY === "undefined") {
       return NextResponse.json({ 
-        error: "Invalid or missing GEMINI_API_KEY. Please check your Secrets tab." 
+        error: "GEMINI_API_KEY is missing. Please add it to the 'Secrets' tab." 
       }, { status: 500 });
     }
 
     const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
     
-    // Using 'gemini-1.5-flash-8b' - it's newer and often bypasses the 404 issues of the main flash model
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-8b" });
+    // Using the most standard model name to avoid 404s
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
     const result = await model.generateContent({
       contents: [{ role: "user", parts: [{ text: prompt }] }],
@@ -38,10 +38,9 @@ export async function POST(req: Request) {
   } catch (error: any) {
     console.error("[gemini-api] Error:", error);
     
-    // Extracting the most useful part of the error message
     const errorMessage = error.message || "Unknown Gemini Error";
     return NextResponse.json({ 
-      error: `Gemini Error: ${errorMessage}. If this is a 404, your API key might not have access to the 8B model yet.` 
+      error: `Gemini Error: ${errorMessage}. Ensure your API key is valid and has 'Gemini 1.5 Flash' enabled.` 
     }, { status: 500 });
   }
 }

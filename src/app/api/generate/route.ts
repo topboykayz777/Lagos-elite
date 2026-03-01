@@ -6,13 +6,13 @@ export async function POST(req: Request) {
   try {
     const { prompt, creativity } = await req.json();
 
-    if (!OPENROUTER_API_KEY || OPENROUTER_API_KEY === "undefined" || OPENROUTER_API_KEY.length < 10) {
+    if (!OPENROUTER_API_KEY || OPENROUTER_API_KEY === "undefined") {
       return NextResponse.json({ 
-        error: "Invalid or missing OPENROUTER_API_KEY. Please check your Secrets tab." 
+        error: "OPENROUTER_API_KEY is missing. Please add it to the 'Secrets' tab." 
       }, { status: 500 });
     }
 
-    // Using Llama 3.2 3B Free - currently the most reliable free endpoint on OpenRouter
+    // Using Gemma 2 9B Free - generally more stable than Llama free endpoints
     const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -22,7 +22,7 @@ export async function POST(req: Request) {
         "X-Title": "Unbound AI Writer",
       },
       body: JSON.stringify({
-        "model": "meta-llama/llama-3.2-3b-instruct:free",
+        "model": "google/gemma-2-9b-it:free",
         "messages": [
           {
             "role": "system",
@@ -42,9 +42,9 @@ export async function POST(req: Request) {
     
     if (!response.ok) {
       console.error("[openrouter] API Error:", data);
-      return NextResponse.json({ 
-        error: data.error?.message || "OpenRouter endpoint is currently congested. Try the Gemini engine." 
-      }, { status: response.status });
+      // Return the specific error from OpenRouter to help debugging
+      const errorDetail = data.error?.message || data.error || "Provider returned error";
+      return NextResponse.json({ error: errorDetail }, { status: response.status });
     }
 
     const text = data.choices?.[0]?.message?.content;
