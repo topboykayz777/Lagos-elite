@@ -1,9 +1,11 @@
 import { NextResponse } from "next/server";
 
 const MODELS = [
-  "meta-llama/llama-3-8b-instruct:free",
+  "meta-llama/llama-3.1-8b-instruct:free",
   "google/gemma-2-9b-it:free",
-  "mistralai/mistral-7b-instruct:free"
+  "qwen/qwen-2-7b-instruct:free",
+  "mistralai/mistral-7b-instruct:free",
+  "meta-llama/llama-3-8b-instruct:free"
 ];
 
 export async function POST(req: Request) {
@@ -20,9 +22,9 @@ export async function POST(req: Request) {
 
     let lastError = "";
     
-    // Try models in order until one works
     for (const modelId of MODELS) {
       try {
+        console.log(`[openrouter-api] Attempting model: ${modelId}`);
         const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
           method: "POST",
           headers: {
@@ -67,7 +69,7 @@ export async function POST(req: Request) {
     }
 
     return NextResponse.json({ 
-      error: `All free models are currently unavailable on OpenRouter. Last error: ${lastError}` 
+      error: `OpenRouter Free Tier is currently overloaded. Last error: ${lastError}` 
     }, { status: 503 });
 
   } catch (error: any) {

@@ -14,7 +14,8 @@ import {
   AlertCircle,
   Cpu,
   Bug,
-  AlignLeft
+  AlignLeft,
+  RefreshCw
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
@@ -74,17 +75,18 @@ const GeneratorForm = () => {
     }
   };
 
-  const handleGenerate = async (customPrompt?: string) => {
+  const handleGenerate = async (customPrompt?: string, forceProvider?: "openrouter" | "gemini") => {
     const finalPrompt = customPrompt || prompt;
     if (!finalPrompt.trim()) {
       toast.error("Please enter a prompt first.");
       return;
     }
 
+    const currentProvider = forceProvider || provider;
     const lengthInstruction = `\n\nTarget length: approximately ${length[0]} words.`;
     const promptWithLength = finalPrompt + lengthInstruction;
 
-    const endpoint = provider === "openrouter" ? "/api/generate" : "/api/generate-gemini";
+    const endpoint = currentProvider === "openrouter" ? "/api/generate" : "/api/generate-gemini";
     setIsGenerating(true);
     
     try {
@@ -97,6 +99,12 @@ const GeneratorForm = () => {
       const data = await res.json();
       
       if (!res.ok) {
+        // If OpenRouter fails, try to automatically fallback to Gemini
+        if (currentProvider === "openrouter") {
+          console.warn("OpenRouter failed, attempting fallback to Gemini...");
+          toast.info("OpenRouter is busy. Switching to Gemini fallback...");
+          return handleGenerate(customPrompt, "gemini");
+        }
         throw new Error(data.error || "Generation failed");
       }
       
@@ -105,8 +113,8 @@ const GeneratorForm = () => {
       }
 
       setOutput(data.text);
-      if (data.modelUsed) setActiveModel(data.modelUsed);
-      toast.success("Story generated!");
+      setActiveModel(data.modelUsed || (currentProvider === 'gemini' ? 'gemini-1.5-flash' : ''));
+      toast.success(`Story generated via ${currentProvider}!`);
 
       if (user) {
         supabase.from('stories').insert({
@@ -142,7 +150,7 @@ const GeneratorForm = () => {
           </div>
           <div className="flex items-center gap-2">
             <Cpu className="w-3 h-3" /> 
-            <span>MODEL: <span className="text-zinc-300 truncate max-w-[180px]">{activeModel || (provider === 'openrouter' ? 'Auto-Fallback' : 'gemini-1.5-flash')}</span></span>
+            <span>MODEL: <span className="text-zinc-300 truncate max-w-[180px]">{activeModel || 'Auto-Selecting...'}</span></span>
           </div>
         </div>
 
@@ -178,6 +186,9 @@ const GeneratorForm = () => {
                 Gemini
               </button>
             </div>
+            <p className="text-[9px] text-zinc-600 italic px-1">
+              * OpenRouter is uncensored but can be unstable. Gemini is stable but has filters.
+            </p>
           </div>
 
           <StylePresets onSelect={(p) => setPrompt(p)} />
@@ -234,7 +245,7 @@ const GeneratorForm = () => {
           >
             {isGenerating ? (
               <span className="flex items-center gap-2">
-                <Sparkles className="w-5 h-5 animate-spin" /> Generating...
+                <RefreshCw className="w-5 h-5 animate-spin" /> Generating...
               </span>
             ) : (
               <span className="flex items-center gap-2">
