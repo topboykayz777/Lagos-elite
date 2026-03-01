@@ -39,7 +39,7 @@ const GeneratorForm = () => {
   const [history, setHistory] = useState<any[]>([]);
   const [user, setUser] = useState<any>(null);
   const [isPremium, setIsPremium] = useState(false);
-  const [authError, setAuthError] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
 
   useEffect(() => {
     const initAuth = async () => {
@@ -52,9 +52,9 @@ const GeneratorForm = () => {
         } else {
           setUser(session.user);
         }
-      } catch (err) {
+      } catch (err: any) {
         console.error("Auth error:", err);
-        setAuthError(true);
+        setAuthError(err.message || "Database connection error");
       }
     };
     initAuth();
@@ -69,7 +69,7 @@ const GeneratorForm = () => {
 
   const checkPremiumStatus = async () => {
     try {
-      const { data, error } = await supabase
+      const { data } = await supabase
         .from('profiles')
         .select('subscription_status')
         .eq('id', user.id)
@@ -79,7 +79,6 @@ const GeneratorForm = () => {
         setIsPremium(data.subscription_status === 'active');
       }
     } catch (err) {
-      // If profile doesn't exist, user is definitely not premium
       setIsPremium(false);
     }
   };
@@ -97,18 +96,17 @@ const GeneratorForm = () => {
     if (isPremium) return true;
 
     const today = new Date().toISOString().split('T')[0];
-    const { count, error } = await supabase
+    const { count } = await supabase
       .from('stories')
       .select('*', { count: 'exact', head: true })
       .gte('created_at', today);
     
-    if (error) return true; // Fail open if we can't check
     return (count || 0) < 5;
   };
 
   const handleGenerate = async () => {
     if (authError) {
-      toast.error("Authentication failed. Please ensure Anonymous Auth is enabled in Supabase.");
+      toast.error("Database Error: Please check the SQL trigger in Supabase.");
       return;
     }
 
@@ -163,9 +161,12 @@ const GeneratorForm = () => {
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
       <div className="lg:col-span-4 space-y-6">
         {authError && (
-          <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-xs flex items-start gap-3">
-            <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
-            <p>Anonymous Auth is disabled in Supabase. The generator will not be able to save your history.</p>
+          <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-xs flex flex-col gap-2">
+            <div className="flex items-start gap-3">
+              <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+              <p className="font-bold">Database Trigger Error</p>
+            </div>
+            <p className="opacity-80">Your database is requiring an email for anonymous users. Please run the SQL fix provided in the chat.</p>
           </div>
         )}
 
@@ -214,7 +215,7 @@ const GeneratorForm = () => {
 
           <Button 
             onClick={handleGenerate}
-            disabled={isGenerating}
+            disabled={isGenerating || !!authError}
             className="w-full bg-violet-600 hover:bg-violet-700 text-white h-12 rounded-xl font-bold text-lg shadow-lg shadow-violet-600/20"
           >
             {isGenerating ? (
