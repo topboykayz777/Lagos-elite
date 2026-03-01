@@ -106,7 +106,7 @@ const GeneratorForm = () => {
 
   const handleGenerate = async () => {
     if (authError) {
-      toast.error("Database Error: Please check the SQL trigger in Supabase.");
+      toast.error(`Auth Error: ${authError}. Check Supabase settings.`);
       return;
     }
 
@@ -132,7 +132,10 @@ const GeneratorForm = () => {
       });
       
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Generation failed");
+      
+      if (!res.ok) {
+        throw new Error(data.error || "Generation failed");
+      }
       
       setOutput(data.text);
       
@@ -147,6 +150,7 @@ const GeneratorForm = () => {
       
       toast.success("Story generated!");
     } catch (error: any) {
+      console.error("Generation Error:", error);
       toast.error(error.message || "Generation failed. Check your API key.");
     } finally {
       setIsGenerating(false);
@@ -164,9 +168,9 @@ const GeneratorForm = () => {
           <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-xs flex flex-col gap-2">
             <div className="flex items-start gap-3">
               <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
-              <p className="font-bold">Database Trigger Error</p>
+              <p className="font-bold">Database/Auth Error</p>
             </div>
-            <p className="opacity-80">Your database is requiring an email for anonymous users. Please run the SQL fix provided in the chat.</p>
+            <p className="opacity-80">Error: {authError}. Ensure "Anonymous Sign-ins" are enabled in Supabase Auth settings.</p>
           </div>
         )}
 
@@ -215,7 +219,7 @@ const GeneratorForm = () => {
 
           <Button 
             onClick={handleGenerate}
-            disabled={isGenerating || !!authError}
+            disabled={isGenerating}
             className="w-full bg-violet-600 hover:bg-violet-700 text-white h-12 rounded-xl font-bold text-lg shadow-lg shadow-violet-600/20"
           >
             {isGenerating ? (

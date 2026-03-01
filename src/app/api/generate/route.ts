@@ -6,10 +6,10 @@ export async function POST(req: Request) {
   try {
     const { prompt, creativity } = await req.json();
 
-    if (!OPENROUTER_API_KEY) {
-      console.error("[generate-api] Missing OPENROUTER_API_KEY");
+    if (!OPENROUTER_API_KEY || OPENROUTER_API_KEY === "your_key_here") {
+      console.error("[generate-api] CRITICAL: OPENROUTER_API_KEY is missing in environment variables.");
       return NextResponse.json({ 
-        error: "API Key not configured. Please add OPENROUTER_API_KEY to your environment variables." 
+        error: "API Key Missing: Please add OPENROUTER_API_KEY to your environment variables." 
       }, { status: 500 });
     }
 
@@ -40,16 +40,21 @@ export async function POST(req: Request) {
 
     const data = await response.json();
     
-    if (data.error) {
-      console.error("[generate-api] OpenRouter Error:", data.error);
-      throw new Error(data.error.message || "OpenRouter Error");
+    if (!response.ok) {
+      console.error("[generate-api] OpenRouter Error Response:", data);
+      return NextResponse.json({ 
+        error: data.error?.message || "OpenRouter API returned an error." 
+      }, { status: response.status });
+    }
+
+    if (!data.choices || data.choices.length === 0) {
+      return NextResponse.json({ error: "No response generated from AI model." }, { status: 500 });
     }
 
     const text = data.choices[0].message.content;
-
     return NextResponse.json({ text });
   } catch (error: any) {
-    console.error("[generate-api] Generation Error:", error);
-    return NextResponse.json({ error: error.message || "Failed to generate content." }, { status: 500 });
+    console.error("[generate-api] Unexpected Server Error:", error);
+    return NextResponse.json({ error: "Internal Server Error. Check server logs." }, { status: 500 });
   }
 }
