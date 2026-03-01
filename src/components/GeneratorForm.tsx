@@ -37,8 +37,8 @@ const MODELS = [
   { id: "auto", name: "Auto-Rotate (Recommended)" },
   { id: "meta-llama/llama-3.1-8b-instruct:free", name: "Llama 3.1 8B" },
   { id: "google/gemma-2-9b-it:free", name: "Gemma 2 9B" },
+  { id: "qwen/qwen-2-7b-instruct:free", name: "Qwen 2 7B" },
   { id: "mistralai/mistral-7b-instruct:free", name: "Mistral 7B" },
-  { id: "gryphe/mythomist-7b:free", name: "MythoMist (Uncensored)" },
 ];
 
 const GeneratorForm = () => {
@@ -137,7 +137,6 @@ const GeneratorForm = () => {
       console.error("[Generator] Error:", error.message);
       setLastError(error.message);
       
-      // Automatic fallback to Gemini if OpenRouter fails and we are in auto mode
       if (currentProvider === "openrouter" && !forceProvider && selectedModel === "auto") {
         toast.info("OpenRouter failed. Trying Gemini fallback...");
         return handleGenerate(customPrompt, "gemini");
@@ -157,7 +156,7 @@ const GeneratorForm = () => {
             <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest flex items-center gap-1.5">
               <ShieldCheck className="w-3 h-3 text-green-500" /> System Status
             </span>
-            <span className="text-[10px] font-mono text-violet-400">v5.0-FIXED</span>
+            <span className="text-[10px] font-mono text-violet-400">v5.1-FIXED</span>
           </div>
           <div className="grid grid-cols-2 gap-2">
             <div className="px-2 py-1.5 rounded-lg bg-black/40 border border-white/5 flex flex-col">
@@ -179,9 +178,6 @@ const GeneratorForm = () => {
                 <p className="font-bold uppercase text-[10px]">Generation Error</p>
                 <p className="leading-relaxed opacity-80">{lastError}</p>
               </div>
-            </div>
-            <div className="text-[10px] text-zinc-500 italic">
-              Tip: Check your API keys in the "Secrets" tab.
             </div>
           </div>
         )}
