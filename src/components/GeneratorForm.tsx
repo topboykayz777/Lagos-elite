@@ -96,20 +96,20 @@ const GeneratorForm = () => {
     if (isPremium) return true;
 
     const today = new Date().toISOString().split('T')[0];
-    const { count } = await supabase
+    const { count, error } = await supabase
       .from('stories')
       .select('*', { count: 'exact', head: true })
       .gte('created_at', today);
+    
+    if (error) {
+      console.error("Rate limit check error:", error);
+      return true; // Allow if check fails to not block user
+    }
     
     return (count || 0) < 5;
   };
 
   const handleGenerate = async () => {
-    if (authError) {
-      toast.error(`Auth Error: ${authError}. Check Supabase settings.`);
-      return;
-    }
-
     if (!prompt.trim()) {
       toast.error("Please enter a prompt first.");
       return;
@@ -140,18 +140,26 @@ const GeneratorForm = () => {
       setOutput(data.text);
       
       if (user) {
-        await supabase.from('stories').insert({
+        const { error: saveError } = await supabase.from('stories').insert({
           user_id: user.id,
           prompt: prompt,
           content: data.text
         });
-        fetchHistory();
+        
+        if (saveError) {
+          console.error("Failed to save story:", saveError);
+          toast.error("Story generated but could not be saved to library.");
+        } else {
+          fetchHistory();
+          toast.success("Story generated and saved!");
+        }
+      } else {
+        toast.success("Story generated!");
       }
       
-      toast.success("Story generated!");
     } catch (error: any) {
       console.error("Generation Error:", error);
-      toast.error(error.message || "Generation failed. Check your API key.");
+      toast.error(error.message || "Generation failed. Please check your API key and try again.");
     } finally {
       setIsGenerating(false);
     }

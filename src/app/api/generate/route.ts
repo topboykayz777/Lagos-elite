@@ -6,13 +6,13 @@ export async function POST(req: Request) {
   try {
     const { prompt, creativity } = await req.json();
 
-    if (!OPENROUTER_API_KEY || OPENROUTER_API_KEY === "your_key_here") {
-      console.error("[generate-api] CRITICAL: OPENROUTER_API_KEY is missing in environment variables.");
+    if (!OPENROUTER_API_KEY) {
       return NextResponse.json({ 
-        error: "API Key Missing: Please add OPENROUTER_API_KEY to your environment variables." 
+        error: "API Key Missing: Please ensure OPENROUTER_API_KEY is set in your environment variables and you have clicked 'Restart'." 
       }, { status: 500 });
     }
 
+    // Using Llama 3.1 8B which is more stable on the free tier
     const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -22,7 +22,7 @@ export async function POST(req: Request) {
         "X-Title": "Unbound AI Writer",
       },
       body: JSON.stringify({
-        "model": "meta-llama/llama-3-8b-instruct:free", 
+        "model": "meta-llama/llama-3.1-8b-instruct:free", 
         "messages": [
           {
             "role": "system",
@@ -41,20 +41,20 @@ export async function POST(req: Request) {
     const data = await response.json();
     
     if (!response.ok) {
-      console.error("[generate-api] OpenRouter Error Response:", data);
+      console.error("[generate-api] OpenRouter Error:", data);
       return NextResponse.json({ 
-        error: data.error?.message || "OpenRouter API returned an error." 
+        error: data.error?.message || `OpenRouter API error: ${response.statusText}` 
       }, { status: response.status });
     }
 
     if (!data.choices || data.choices.length === 0) {
-      return NextResponse.json({ error: "No response generated from AI model." }, { status: 500 });
+      return NextResponse.json({ error: "The AI model returned an empty response. Try a different prompt." }, { status: 500 });
     }
 
     const text = data.choices[0].message.content;
     return NextResponse.json({ text });
   } catch (error: any) {
-    console.error("[generate-api] Unexpected Server Error:", error);
-    return NextResponse.json({ error: "Internal Server Error. Check server logs." }, { status: 500 });
+    console.error("[generate-api] Server Error:", error);
+    return NextResponse.json({ error: "Internal Server Error: " + (error.message || "Unknown error") }, { status: 500 });
   }
 }
