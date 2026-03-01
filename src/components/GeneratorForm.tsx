@@ -6,18 +6,23 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { 
   Wand2, 
   Settings2, 
   History, 
-  Sparkles,
   Zap,
-  AlertCircle,
   Cpu,
-  Bug,
   AlignLeft,
   RefreshCw,
   AlertTriangle,
-  ShieldCheck
+  ShieldCheck,
+  ChevronDown
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
@@ -25,6 +30,15 @@ import { cn } from '@/lib/utils';
 import StylePresets from './generator/StylePresets';
 import OutputDisplay from './generator/OutputDisplay';
 import { generateStoryAction } from '@/app/actions/ai-actions';
+
+const MODELS = [
+  { id: "auto", name: "Auto-Rotate (Recommended)" },
+  { id: "meta-llama/llama-3.1-8b-instruct:free", name: "Llama 3.1 8B" },
+  { id: "google/gemma-2-9b-it:free", name: "Gemma 2 9B" },
+  { id: "mistralai/mistral-7b-instruct:free", name: "Mistral 7B" },
+  { id: "gryphe/mythomist-7b:free", name: "MythoMist (Uncensored)" },
+  { id: "undi95/toppy-m-7b:free", name: "Toppy M 7B" },
+];
 
 const GeneratorForm = () => {
   const [prompt, setPrompt] = useState("");
@@ -35,6 +49,7 @@ const GeneratorForm = () => {
   const [history, setHistory] = useState<any[]>([]);
   const [user, setUser] = useState<any>(null);
   const [provider, setProvider] = useState<"openrouter" | "gemini">("openrouter");
+  const [selectedModel, setSelectedModel] = useState("auto");
   const [activeModel, setActiveModel] = useState<string>("");
   const [lastError, setLastError] = useState<string | null>(null);
 
@@ -77,26 +92,30 @@ const GeneratorForm = () => {
     
     try {
       const fullPrompt = `${finalPrompt}\n\nTarget length: ${length[0]} words.`;
-      const result = await generateStoryAction(fullPrompt, creativity[0], currentProvider);
+      const result = await generateStoryAction(
+        fullPrompt, 
+        creativity[0], 
+        currentProvider,
+        selectedModel === "auto" ? undefined : selectedModel
+      );
       
       setOutput(result.text);
       setActiveModel(result.modelUsed);
       toast.success(`Success via ${result.provider}`);
 
+      // Non-blocking DB save
       if (user) {
-        await supabase.from('stories').insert({
+        supabase.from('stories').insert({
           user_id: user.id,
           prompt: finalPrompt.substring(0, 100),
           content: result.text
-        });
-        fetchHistory();
+        }).then(() => fetchHistory()).catch(e => console.error("DB Save failed", e));
       }
     } catch (error: any) {
       console.error("[Generator] Error:", error.message);
       setLastError(error.message);
       
-      // Auto-fallback to Gemini if OpenRouter fails and we haven't tried Gemini yet
-      if (currentProvider === "openrouter" && !forceProvider) {
+      if (currentProvider === "openrouter" && !forceProvider && selectedModel === "auto") {
         toast.info("OpenRouter failed. Trying Gemini fallback...");
         return handleGenerate(customPrompt, "gemini");
       }
@@ -116,7 +135,7 @@ const GeneratorForm = () => {
             <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest flex items-center gap-1.5">
               <ShieldCheck className="w-3 h-3 text-green-500" /> System Status
             </span>
-            <span className="text-[10px] font-mono text-violet-400">v4.0-STABLE</span>
+            <span className="text-[10px] font-mono text-violet-400">v4.2-STABLE</span>
           </div>
           <div className="grid grid-cols-2 gap-2">
             <div className="px-2 py-1.5 rounded-lg bg-black/40 border border-white/5 flex flex-col">
@@ -124,7 +143,7 @@ const GeneratorForm = () => {
               <span className="text-[10px] font-bold text-zinc-300 uppercase">{provider}</span>
             </div>
             <div className="px-2 py-1.5 rounded-lg bg-black/40 border border-white/5 flex flex-col">
-              <span className="text-[8px] text-zinc-600 uppercase">Model</span>
+              <span className="text-[8px] text-zinc-600 uppercase">Active Model</span>
               <span className="text-[10px] font-bold text-zinc-300 truncate">{activeModel || 'Idle'}</span>
             </div>
           </div>
@@ -151,30 +170,50 @@ const GeneratorForm = () => {
         )}
 
         <div className="p-6 rounded-2xl border border-white/5 bg-white/[0.02] space-y-6 shadow-xl">
-          <div className="space-y-3">
-            <Label className="text-sm font-medium text-zinc-400 flex items-center gap-2">
-              <Cpu className="w-4 h-4" /> AI Engine
-            </Label>
-            <div className="grid grid-cols-2 gap-2 p-1 bg-black/40 rounded-xl border border-white/5">
-              <button
-                onClick={() => setProvider("openrouter")}
-                className={cn(
-                  "py-2 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all",
-                  provider === "openrouter" ? "bg-violet-600 text-white shadow-lg shadow-violet-600/20" : "text-zinc-500 hover:text-zinc-300"
-                )}
-              >
-                OpenRouter
-              </button>
-              <button
-                onClick={() => setProvider("gemini")}
-                className={cn(
-                  "py-2 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all",
-                  provider === "gemini" ? "bg-violet-600 text-white shadow-lg shadow-violet-600/20" : "text-zinc-500 hover:text-zinc-300"
-                )}
-              >
-                Gemini
-              </button>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label className="text-sm font-medium text-zinc-400 flex items-center gap-2">
+                <Cpu className="w-4 h-4" /> AI Engine
+              </Label>
+              <div className="grid grid-cols-2 gap-2 p-1 bg-black/40 rounded-xl border border-white/5">
+                <button
+                  onClick={() => setProvider("openrouter")}
+                  className={cn(
+                    "py-2 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all",
+                    provider === "openrouter" ? "bg-violet-600 text-white shadow-lg shadow-violet-600/20" : "text-zinc-500 hover:text-zinc-300"
+                  )}
+                >
+                  OpenRouter
+                </button>
+                <button
+                  onClick={() => setProvider("gemini")}
+                  className={cn(
+                    "py-2 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all",
+                    provider === "gemini" ? "bg-violet-600 text-white shadow-lg shadow-violet-600/20" : "text-zinc-500 hover:text-zinc-300"
+                  )}
+                >
+                  Gemini
+                </button>
+              </div>
             </div>
+
+            {provider === "openrouter" && (
+              <div className="space-y-2 animate-in fade-in slide-in-from-top-1">
+                <Label className="text-xs font-medium text-zinc-500 uppercase tracking-wider">Specific Model</Label>
+                <Select value={selectedModel} onValueChange={setSelectedModel}>
+                  <SelectTrigger className="bg-black/40 border-white/10 h-10 text-xs">
+                    <SelectValue placeholder="Select a model" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-zinc-900 border-white/10 text-zinc-300">
+                    {MODELS.map(m => (
+                      <SelectItem key={m.id} value={m.id} className="text-xs focus:bg-violet-600 focus:text-white">
+                        {m.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
           </div>
 
           <StylePresets onSelect={(p) => setPrompt(p)} />
