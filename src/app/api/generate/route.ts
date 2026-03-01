@@ -1,21 +1,22 @@
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
+  // Accessing the environment variable
   const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
 
   try {
     const { prompt, creativity } = await req.json();
 
-    // Debug log to help the user verify the key exists without leaking it
+    // Log detection status to server console (visible to developers)
     if (OPENROUTER_API_KEY) {
-      console.log(`[generate-api] API Key detected. Length: ${OPENROUTER_API_KEY.length} chars.`);
+      console.log(`[generate-api] ✅ OPENROUTER_API_KEY detected (Length: ${OPENROUTER_API_KEY.length})`);
     } else {
-      console.error("[generate-api] CRITICAL: OPENROUTER_API_KEY is undefined in process.env");
+      console.error("[generate-api] ❌ CRITICAL: OPENROUTER_API_KEY is NOT found in process.env");
     }
 
-    if (!OPENROUTER_API_KEY) {
+    if (!OPENROUTER_API_KEY || OPENROUTER_API_KEY === "undefined") {
       return NextResponse.json({ 
-        error: "API Key Missing. Please add 'OPENROUTER_API_KEY' to your environment variables and click 'Restart' above the chat." 
+        error: "Environment Variable Not Set: The 'OPENROUTER_API_KEY' was not found. 1. Add it to your Secrets/Env tab. 2. Click the RESTART button above this chat." 
       }, { status: 500 });
     }
 
