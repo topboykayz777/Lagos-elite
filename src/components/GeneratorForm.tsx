@@ -23,7 +23,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { cn } from '@/lib/utils';
 
 const PRESETS = [
   { name: "Dark Fantasy", icon: Skull, prompt: "Write a gritty, dark fantasy scene involving " },
@@ -40,7 +40,7 @@ const GeneratorForm = () => {
   const [copied, setCopied] = useState(false);
   const [history, setHistory] = useState<any[]>([]);
   const [user, setUser] = useState<any>(null);
-  const [provider, setProvider] = useState("openrouter");
+  const [provider, setProvider] = useState<"openrouter" | "gemini">("openrouter");
   const [authError, setAuthError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -90,7 +90,7 @@ const GeneratorForm = () => {
     }
 
     const endpoint = provider === "openrouter" ? "/api/generate" : "/api/generate-gemini";
-    console.log(`[Generator] Starting generation with provider: ${provider} at endpoint: ${endpoint}`);
+    console.log(`[Generator] 🚀 CALLING ENDPOINT: ${endpoint} (Provider: ${provider})`);
 
     setIsGenerating(true);
     setOutput("");
@@ -105,8 +105,8 @@ const GeneratorForm = () => {
       const data = await res.json();
       
       if (!res.ok) {
-        console.error(`[Generator] Server returned error:`, data);
-        throw new Error(data.error || "Generation failed");
+        console.error(`[Generator] ❌ SERVER ERROR from ${endpoint}:`, data);
+        throw new Error(data.error || `Server error (${res.status})`);
       }
       
       setOutput(data.text);
@@ -123,7 +123,7 @@ const GeneratorForm = () => {
       }
       
     } catch (error: any) {
-      console.error("[Generator] Fetch Error:", error);
+      console.error("[Generator] ❌ FETCH FAILED:", error);
       toast.error(error.message || "Generation failed.");
     } finally {
       setIsGenerating(false);
@@ -134,8 +134,15 @@ const GeneratorForm = () => {
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
       <div className="lg:col-span-4 space-y-6">
         {/* Debug Info */}
-        <div className="px-3 py-1 rounded-md bg-zinc-900 border border-white/5 text-[10px] font-mono text-zinc-500 flex items-center gap-2">
-          <Bug className="w-3 h-3" /> Active Provider: <span className="text-violet-400 uppercase">{provider}</span>
+        <div className="px-3 py-2 rounded-xl bg-zinc-900 border border-white/5 text-[10px] font-mono text-zinc-500 flex flex-col gap-1">
+          <div className="flex items-center gap-2">
+            <Bug className="w-3 h-3" /> 
+            <span>ACTIVE PROVIDER: <span className="text-violet-400 font-bold uppercase">{provider}</span></span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Zap className="w-3 h-3" /> 
+            <span>ENDPOINT: <span className="text-zinc-300">{provider === "openrouter" ? "/api/generate" : "/api/generate-gemini"}</span></span>
+          </div>
         </div>
 
         {authError && (
@@ -148,14 +155,28 @@ const GeneratorForm = () => {
         <div className="p-6 rounded-2xl border border-white/5 bg-white/[0.02] space-y-6">
           <div className="space-y-3">
             <Label className="text-sm font-medium text-zinc-400 flex items-center gap-2">
-              <Cpu className="w-4 h-4" /> AI Provider
+              <Cpu className="w-4 h-4" /> Select AI Engine
             </Label>
-            <Tabs value={provider} onValueChange={setProvider} className="w-full">
-              <TabsList className="grid w-full grid-cols-2 bg-black/40 border border-white/5">
-                <TabsTrigger value="openrouter" className="text-[10px] uppercase font-bold tracking-widest data-[state=active]:bg-violet-600">OpenRouter</TabsTrigger>
-                <TabsTrigger value="gemini" className="text-[10px] uppercase font-bold tracking-widest data-[state=active]:bg-violet-600">Gemini</TabsTrigger>
-              </TabsList>
-            </Tabs>
+            <div className="grid grid-cols-2 gap-2 p-1 bg-black/40 rounded-xl border border-white/5">
+              <button
+                onClick={() => setProvider("openrouter")}
+                className={cn(
+                  "py-2 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all",
+                  provider === "openrouter" ? "bg-violet-600 text-white shadow-lg shadow-violet-600/20" : "text-zinc-500 hover:text-zinc-300"
+                )}
+              >
+                OpenRouter
+              </button>
+              <button
+                onClick={() => setProvider("gemini")}
+                className={cn(
+                  "py-2 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all",
+                  provider === "gemini" ? "bg-violet-600 text-white shadow-lg shadow-violet-600/20" : "text-zinc-500 hover:text-zinc-300"
+                )}
+              >
+                Gemini
+              </button>
+            </div>
           </div>
 
           <div className="space-y-3">

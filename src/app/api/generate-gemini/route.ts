@@ -7,9 +7,16 @@ export async function POST(req: Request) {
   try {
     const { prompt, creativity } = await req.json();
 
+    // Log for server-side debugging
+    if (GEMINI_API_KEY) {
+      console.log(`[gemini-api] ✅ GEMINI_API_KEY detected (Length: ${GEMINI_API_KEY.length})`);
+    } else {
+      console.error("[gemini-api] ❌ CRITICAL: GEMINI_API_KEY is NOT found in process.env");
+    }
+
     if (!GEMINI_API_KEY || GEMINI_API_KEY === "undefined") {
       return NextResponse.json({ 
-        error: "Gemini API Key Not Set: Please add 'GEMINI_API_KEY' to your Secrets tab and Restart the app." 
+        error: "GEMINI_API_KEY MISSING: Please add 'GEMINI_API_KEY' to your Secrets tab and click RESTART." 
       }, { status: 500 });
     }
 
@@ -22,7 +29,6 @@ export async function POST(req: Request) {
       }
     });
 
-    // Gemini is stricter, so we use a slightly different system instruction approach
     const result = await model.generateContent([
       "You are a creative storyteller. Write a detailed, immersive story based on the following prompt. Be descriptive and engaging.",
       prompt
@@ -34,7 +40,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ text });
 
   } catch (error: any) {
-    console.error("[gemini-api] Error:", error);
-    return NextResponse.json({ error: "Gemini Error: " + (error.message || "Unknown error") }, { status: 500 });
+    console.error("[gemini-api] Unexpected Error:", error);
+    return NextResponse.json({ error: "Gemini API Error: " + (error.message || "Unknown error") }, { status: 500 });
   }
 }
