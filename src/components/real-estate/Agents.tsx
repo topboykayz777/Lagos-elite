@@ -7,17 +7,17 @@ const AGENTS = [
   {
     name: "Tunde Williams",
     role: "Senior Property Consultant",
-    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=1974&auto=format&fit=crop"
+    image: "https://images.unsplash.com/photo-1507152832244-10d45c7eda57?q=80&w=1974&auto=format&fit=crop"
   },
   {
     name: "Sarah Adeyemi",
     role: "Luxury Listing Specialist",
-    image: "https://images.unsplash.com/photo-1531123897727-8f129e1688ce?q=80&w=1974&auto=format&fit=crop"
+    image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=1974&auto=format&fit=crop"
   },
   {
     name: "Chidi Okafor",
     role: "Investment Advisor",
-    image: "https://images.unsplash.com/photo-1506277886164-e25aa3f4ef7f?q=80&w=1974&auto=format&fit=crop"
+    image: "https://images.unsplash.com/photo-1531384441138-2736e62e0919?q=80&w=1974&auto=format&fit=crop"
   }
 ];
 

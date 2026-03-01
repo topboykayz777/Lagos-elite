@@ -1,22 +1,35 @@
 "use client";
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Search, MapPin, Building2 } from 'lucide-react';
 import Link from 'next/link';
 
 const LeafAnimation = () => {
+  const [leaves, setLeaves] = useState<{ left: string; duration: string; delay: string; size: string }[]>([]);
+
+  useEffect(() => {
+    // Generate random values only on the client to avoid hydration mismatch
+    const newLeaves = [...Array(15)].map(() => ({
+      left: `${Math.random() * 100}%`,
+      duration: `${10 + Math.random() * 20}s`,
+      delay: `${-Math.random() * 20}s`,
+      size: `${10 + Math.random() * 20}px`
+    }));
+    setLeaves(newLeaves);
+  }, []);
+
   return (
     <div className="absolute inset-0 pointer-events-none overflow-hidden z-10">
-      {[...Array(15)].map((_, i) => (
+      {leaves.map((leaf, i) => (
         <div
           key={i}
           className="animate-leaf absolute text-[#C5A059]/20"
           style={{
-            left: `${Math.random() * 100}%`,
-            animationDuration: `${10 + Math.random() * 20}s`,
-            animationDelay: `${-Math.random() * 20}s`,
-            fontSize: `${10 + Math.random() * 20}px`
+            left: leaf.left,
+            animationDuration: leaf.duration,
+            animationDelay: leaf.delay,
+            fontSize: leaf.size
           }}
         >
           🍃
