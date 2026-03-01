@@ -10,7 +10,11 @@ import {
   ChevronRight, 
   RotateCcw,
   Type,
-  Clock
+  Clock,
+  Maximize2,
+  Minimize2,
+  Share2,
+  Download
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
@@ -26,6 +30,7 @@ interface OutputDisplayProps {
 const OutputDisplay = ({ output, isGenerating, provider, onClear, onRefine }: OutputDisplayProps) => {
   const [copied, setCopied] = useState(false);
   const [refineInput, setRefineInput] = useState("");
+  const [isZenMode, setIsZenMode] = useState(false);
 
   const wordCount = output ? output.trim().split(/\s+/).length : 0;
   const readingTime = Math.ceil(wordCount / 200);
@@ -44,8 +49,18 @@ const OutputDisplay = ({ output, isGenerating, provider, onClear, onRefine }: Ou
     setRefineInput("");
   };
 
+  const toggleZenMode = () => {
+    setIsZenMode(!isZenMode);
+    if (!isZenMode) {
+      toast.info("Zen Mode Active. Press ESC or the button to exit.");
+    }
+  };
+
   return (
-    <div className="h-full min-h-[600px] rounded-2xl border border-white/5 bg-white/[0.02] flex flex-col overflow-hidden">
+    <div className={cn(
+      "h-full min-h-[600px] rounded-2xl border border-white/5 bg-white/[0.02] flex flex-col overflow-hidden transition-all duration-500",
+      isZenMode ? "fixed inset-0 z-[100] bg-[#050505] rounded-none border-none" : "relative"
+    )}>
       {/* Header */}
       <div className="p-4 border-b border-white/5 flex items-center justify-between bg-white/[0.01]">
         <div className="flex items-center gap-4">
@@ -66,19 +81,33 @@ const OutputDisplay = ({ output, isGenerating, provider, onClear, onRefine }: Ou
                   <Clock className="w-3 h-3" /> {readingTime} min read
                 </div>
               </div>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={toggleZenMode} 
+                className="h-8 w-8 text-zinc-400 hover:text-violet-400"
+                title={isZenMode ? "Exit Zen Mode" : "Enter Zen Mode"}
+              >
+                {isZenMode ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
+              </Button>
               <Button variant="ghost" size="icon" onClick={handleCopy} className="h-8 w-8 text-zinc-400 hover:text-white">
                 {copied ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
               </Button>
             </>
           )}
-          <Button variant="ghost" size="icon" onClick={onClear} className="h-8 w-8 text-zinc-400 hover:text-red-400">
-            <Trash2 className="w-4 h-4" />
-          </Button>
+          {!isZenMode && (
+            <Button variant="ghost" size="icon" onClick={onClear} className="h-8 w-8 text-zinc-400 hover:text-red-400">
+              <Trash2 className="w-4 h-4" />
+            </Button>
+          )}
         </div>
       </div>
       
       {/* Content Area */}
-      <div className="flex-1 p-8 font-serif text-lg leading-relaxed text-zinc-300 overflow-y-auto whitespace-pre-wrap selection:bg-violet-500/30 custom-scrollbar">
+      <div className={cn(
+        "flex-1 p-8 font-serif leading-relaxed text-zinc-300 overflow-y-auto whitespace-pre-wrap selection:bg-violet-500/30 custom-scrollbar transition-all duration-700",
+        isZenMode ? "max-w-3xl mx-auto text-2xl py-20" : "text-lg"
+      )}>
         {isGenerating ? (
           <div className="space-y-4 animate-pulse">
             <div className="h-4 bg-white/5 rounded w-3/4" />
@@ -100,7 +129,7 @@ const OutputDisplay = ({ output, isGenerating, provider, onClear, onRefine }: Ou
       </div>
 
       {/* Refinement Footer */}
-      {output && !isGenerating && (
+      {output && !isGenerating && !isZenMode && (
         <div className="p-4 border-t border-white/5 bg-black/20">
           <form onSubmit={handleRefineSubmit} className="flex gap-2">
             <div className="relative flex-1">

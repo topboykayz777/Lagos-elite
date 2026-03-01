@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
+import { Input } from '@/components/ui/input';
 import { 
   Select,
   SelectContent,
@@ -22,6 +23,10 @@ import {
   RefreshCw,
   AlertTriangle,
   ShieldCheck,
+  Users,
+  MapPin,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
@@ -40,6 +45,10 @@ const MODELS = [
 
 const GeneratorForm = () => {
   const [prompt, setPrompt] = useState("");
+  const [characters, setCharacters] = useState("");
+  const [setting, setSetting] = useState("");
+  const [isAdvanced, setIsAdvanced] = useState(false);
+  
   const [output, setOutput] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [creativity, setCreativity] = useState([0.8]);
@@ -89,7 +98,13 @@ const GeneratorForm = () => {
     const currentProvider = forceProvider || provider;
     
     try {
-      const fullPrompt = `${finalPrompt}\n\nTarget length: ${length[0]} words.`;
+      let fullPrompt = finalPrompt;
+      if (isAdvanced) {
+        if (characters) fullPrompt = `CHARACTERS: ${characters}\n\n${fullPrompt}`;
+        if (setting) fullPrompt = `SETTING: ${setting}\n\n${fullPrompt}`;
+      }
+      fullPrompt += `\n\nTarget length: ${length[0]} words.`;
+
       const result = await generateStoryAction(
         fullPrompt, 
         creativity[0], 
@@ -135,7 +150,7 @@ const GeneratorForm = () => {
             <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest flex items-center gap-1.5">
               <ShieldCheck className="w-3 h-3 text-green-500" /> System Status
             </span>
-            <span className="text-[10px] font-mono text-violet-400">v4.2-STABLE</span>
+            <span className="text-[10px] font-mono text-violet-400">v4.5-ADVANCED</span>
           </div>
           <div className="grid grid-cols-2 gap-2">
             <div className="px-2 py-1.5 rounded-lg bg-black/40 border border-white/5 flex flex-col">
@@ -158,43 +173,51 @@ const GeneratorForm = () => {
                 <p className="leading-relaxed opacity-80">{lastError}</p>
               </div>
             </div>
-            <div className="text-[10px] text-zinc-500 italic">
-              Tip: Ensure your API keys are set in the Secrets tab.
-            </div>
           </div>
         )}
 
         <div className="p-6 rounded-2xl border border-white/5 bg-white/[0.02] space-y-6 shadow-xl">
           <div className="space-y-4">
-            <div className="space-y-2">
+            <div className="flex items-center justify-between">
               <Label className="text-sm font-medium text-zinc-400 flex items-center gap-2">
                 <Cpu className="w-4 h-4" /> AI Engine
               </Label>
-              <div className="grid grid-cols-2 gap-2 p-1 bg-black/40 rounded-xl border border-white/5">
-                <button
-                  onClick={() => setProvider("openrouter")}
-                  className={cn(
-                    "py-2 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all",
-                    provider === "openrouter" ? "bg-violet-600 text-white shadow-lg shadow-violet-600/20" : "text-zinc-500 hover:text-zinc-300"
-                  )}
-                >
-                  OpenRouter
-                </button>
-                <button
-                  onClick={() => setProvider("gemini")}
-                  className={cn(
-                    "py-2 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all",
-                    provider === "gemini" ? "bg-violet-600 text-white shadow-lg shadow-violet-600/20" : "text-zinc-500 hover:text-zinc-300"
-                  )}
-                >
-                  Gemini
-                </button>
-              </div>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={() => setIsAdvanced(!isAdvanced)}
+                className={cn(
+                  "text-[10px] font-bold uppercase tracking-widest h-7 px-2 rounded-md transition-all",
+                  isAdvanced ? "bg-violet-500/20 text-violet-400" : "text-zinc-500 hover:text-zinc-300"
+                )}
+              >
+                {isAdvanced ? "Advanced Mode ON" : "Standard Mode"}
+              </Button>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-2 p-1 bg-black/40 rounded-xl border border-white/5">
+              <button
+                onClick={() => setProvider("openrouter")}
+                className={cn(
+                  "py-2 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all",
+                  provider === "openrouter" ? "bg-violet-600 text-white shadow-lg shadow-violet-600/20" : "text-zinc-500 hover:text-zinc-300"
+                )}
+              >
+                OpenRouter
+              </button>
+              <button
+                onClick={() => setProvider("gemini")}
+                className={cn(
+                  "py-2 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all",
+                  provider === "gemini" ? "bg-violet-600 text-white shadow-lg shadow-violet-600/20" : "text-zinc-500 hover:text-zinc-300"
+                )}
+              >
+                Gemini
+              </button>
             </div>
 
             {provider === "openrouter" && (
               <div className="space-y-2 animate-in fade-in slide-in-from-top-1">
-                <Label className="text-xs font-medium text-zinc-500 uppercase tracking-wider">Specific Model</Label>
                 <Select value={selectedModel} onValueChange={setSelectedModel}>
                   <SelectTrigger className="bg-black/40 border-white/10 h-10 text-xs">
                     <SelectValue placeholder="Select a model" />
@@ -210,6 +233,33 @@ const GeneratorForm = () => {
               </div>
             )}
           </div>
+
+          {isAdvanced && (
+            <div className="space-y-4 animate-in fade-in slide-in-from-top-2 duration-500">
+              <div className="space-y-2">
+                <Label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest flex items-center gap-1.5">
+                  <Users className="w-3 h-3" /> Characters
+                </Label>
+                <Input 
+                  placeholder="e.g. Jax, a cynical cyborg..." 
+                  className="bg-black/40 border-white/10 h-9 text-xs"
+                  value={characters}
+                  onChange={(e) => setCharacters(e.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest flex items-center gap-1.5">
+                  <MapPin className="w-3 h-3" /> Setting
+                </Label>
+                <Input 
+                  placeholder="e.g. Neo-Tokyo, 2099..." 
+                  className="bg-black/40 border-white/10 h-9 text-xs"
+                  value={setting}
+                  onChange={(e) => setSetting(e.target.value)}
+                />
+              </div>
+            </div>
+          )}
 
           <StylePresets onSelect={(p) => setPrompt(p)} />
 
