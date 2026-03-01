@@ -1,18 +1,21 @@
 import { NextResponse } from "next/server";
 
-const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
-
 export async function POST(req: Request) {
+  const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
+
   try {
     const { prompt, creativity } = await req.json();
 
+    console.log("[generate-api] Request received for prompt:", prompt.substring(0, 50) + "...");
+
     if (!OPENROUTER_API_KEY) {
+      console.error("[generate-api] CRITICAL: OPENROUTER_API_KEY is missing from environment variables.");
       return NextResponse.json({ 
-        error: "API Key Missing: Please ensure OPENROUTER_API_KEY is set in your environment variables and you have clicked 'Restart'." 
+        error: "API Key Missing. Please add 'OPENROUTER_API_KEY' to your environment variables and click 'Restart' above the chat." 
       }, { status: 500 });
     }
 
-    // Using Llama 3.1 8B which is more stable on the free tier
+    // We'll try Llama 3.1 8B Free first, as it's the most reliable free model
     const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -22,7 +25,7 @@ export async function POST(req: Request) {
         "X-Title": "Unbound AI Writer",
       },
       body: JSON.stringify({
-        "model": "meta-llama/llama-3.1-8b-instruct:free", 
+        "model": "meta-llama/llama-3.1-8b-instruct:free",
         "messages": [
           {
             "role": "system",
@@ -41,20 +44,23 @@ export async function POST(req: Request) {
     const data = await response.json();
     
     if (!response.ok) {
-      console.error("[generate-api] OpenRouter Error:", data);
+      console.error("[generate-api] OpenRouter API Error:", JSON.stringify(data));
       return NextResponse.json({ 
-        error: data.error?.message || `OpenRouter API error: ${response.statusText}` 
+        error: data.error?.message || `OpenRouter Error (${response.status}): ${response.statusText}` 
       }, { status: response.status });
     }
 
     if (!data.choices || data.choices.length === 0) {
-      return NextResponse.json({ error: "The AI model returned an empty response. Try a different prompt." }, { status: 500 });
+      console.error("[generate-api] OpenRouter returned no choices:", JSON.stringify(data));
+      return NextResponse.json({ error: "The AI model returned an empty response. This usually happens if the free model is overloaded. Try again in a moment." }, { status: 500 });
     }
 
     const text = data.choices[0].message.content;
+    console.log("[generate-api] Success! Generated", text.length, "characters.");
     return NextResponse.json({ text });
+
   } catch (error: any) {
-    console.error("[generate-api] Server Error:", error);
+    console.error("[generate-api] Unexpected Server Error:", error);
     return NextResponse.json({ error: "Internal Server Error: " + (error.message || "Unknown error") }, { status: 500 });
   }
 }

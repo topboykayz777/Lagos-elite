@@ -21,7 +21,6 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
-import { cn } from '@/lib/utils';
 
 const PRESETS = [
   { name: "Dark Fantasy", icon: Skull, prompt: "Write a gritty, dark fantasy scene involving " },
@@ -47,14 +46,18 @@ const GeneratorForm = () => {
         const { data: { session } } = await supabase.auth.getSession();
         if (!session) {
           const { data, error } = await supabase.auth.signInAnonymously();
-          if (error) throw error;
-          setUser(data.user);
+          if (error) {
+            console.warn("Anonymous sign-in failed. History will not be saved.", error.message);
+            setAuthError("Database history disabled: " + error.message);
+          } else {
+            setUser(data.user);
+          }
         } else {
           setUser(session.user);
         }
       } catch (err: any) {
-        console.error("Auth error:", err);
-        setAuthError(err.message || "Database connection error");
+        console.error("Auth initialization error:", err);
+        setAuthError("Database connection issue. Stories won't be saved to library.");
       }
     };
     initAuth();
@@ -74,39 +77,23 @@ const GeneratorForm = () => {
         .select('subscription_status')
         .eq('id', user.id)
         .single();
-      
-      if (data) {
-        setIsPremium(data.subscription_status === 'active');
-      }
+      if (data) setIsPremium(data.subscription_status === 'active');
     } catch (err) {
       setIsPremium(false);
     }
   };
 
   const fetchHistory = async () => {
-    const { data } = await supabase
-      .from('stories')
-      .select('*')
-      .order('created_at', { ascending: false })
-      .limit(10);
-    if (data) setHistory(data);
-  };
-
-  const checkRateLimit = async () => {
-    if (isPremium) return true;
-
-    const today = new Date().toISOString().split('T')[0];
-    const { count, error } = await supabase
-      .from('stories')
-      .select('*', { count: 'exact', head: true })
-      .gte('created_at', today);
-    
-    if (error) {
-      console.error("Rate limit check error:", error);
-      return true; // Allow if check fails to not block user
+    try {
+      const { data } = await supabase
+        .from('stories')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(10);
+      if (data) setHistory(data);
+    } catch (e) {
+      console.error("Could not fetch history");
     }
-    
-    return (count || 0) < 5;
   };
 
   const handleGenerate = async () => {
@@ -115,12 +102,6 @@ const GeneratorForm = () => {
       return;
     }
 
-    const canGenerate = await checkRateLimit();
-    if (!canGenerate) {
-      toast.error("Daily limit reached (5/5). Upgrade to Premium for unlimited access.");
-      return;
-    }
-    
     setIsGenerating(true);
     setOutput("");
     
@@ -138,47 +119,34 @@ const GeneratorForm = () => {
       }
       
       setOutput(data.text);
-      
+      toast.success("Story generated!");
+
+      // Try to save to database, but don't fail if it doesn't work
       if (user) {
-        const { error: saveError } = await supabase.from('stories').insert({
+        supabase.from('stories').insert({
           user_id: user.id,
           prompt: prompt,
           content: data.text
+        }).then(({ error }) => {
+          if (!error) fetchHistory();
         });
-        
-        if (saveError) {
-          console.error("Failed to save story:", saveError);
-          toast.error("Story generated but could not be saved to library.");
-        } else {
-          fetchHistory();
-          toast.success("Story generated and saved!");
-        }
-      } else {
-        toast.success("Story generated!");
       }
       
     } catch (error: any) {
       console.error("Generation Error:", error);
-      toast.error(error.message || "Generation failed. Please check your API key and try again.");
+      toast.error(error.message || "Generation failed. Check your API key.");
     } finally {
       setIsGenerating(false);
     }
-  };
-
-  const applyPreset = (presetPrompt: string) => {
-    setPrompt(presetPrompt);
   };
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
       <div className="lg:col-span-4 space-y-6">
         {authError && (
-          <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-xs flex flex-col gap-2">
-            <div className="flex items-start gap-3">
-              <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
-              <p className="font-bold">Database/Auth Error</p>
-            </div>
-            <p className="opacity-80">Error: {authError}. Ensure "Anonymous Sign-ins" are enabled in Supabase Auth settings.</p>
+          <div className="p-3 rounded-xl bg-orange-500/10 border border-orange-500/20 text-orange-400 text-[10px] flex items-center gap-2">
+            <AlertCircle className="w-3 h-3 shrink-0" />
+            <p>Note: {authError}</p>
           </div>
         )}
 
@@ -189,7 +157,7 @@ const GeneratorForm = () => {
               {PRESETS.map((p) => (
                 <button
                   key={p.name}
-                  onClick={() => applyPreset(p.prompt)}
+                  onClick={() => setPrompt(p.prompt)}
                   className="flex items-center gap-2 p-2 rounded-lg bg-white/5 border border-white/5 hover:bg-violet-500/10 hover:border-violet-500/30 transition-all text-[10px] font-bold uppercase tracking-wider text-zinc-400 hover:text-violet-400"
                 >
                   <p.icon className="w-3 h-3" />
@@ -202,7 +170,7 @@ const GeneratorForm = () => {
           <div className="space-y-2">
             <Label className="text-sm font-medium text-zinc-400">Story Prompt</Label>
             <Textarea 
-              placeholder="Describe your scene, characters, or plot twist..."
+              placeholder="Describe your scene..."
               className="min-h-[180px] bg-black/40 border-white/10 focus:border-violet-500/50 transition-all resize-none text-base"
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
