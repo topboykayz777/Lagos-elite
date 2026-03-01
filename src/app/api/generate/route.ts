@@ -12,7 +12,7 @@ export async function POST(req: Request) {
       }, { status: 500 });
     }
 
-    // Switching to Gemma 2 9B Free which is often more reliable than Llama 3.1 Free on OpenRouter
+    // Mistral 7B is typically the most reliable free model on OpenRouter
     const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -22,7 +22,7 @@ export async function POST(req: Request) {
         "X-Title": "Unbound AI Writer",
       },
       body: JSON.stringify({
-        "model": "google/gemma-2-9b-it:free",
+        "model": "mistralai/mistral-7b-instruct:free",
         "messages": [
           {
             "role": "system",
@@ -41,21 +41,20 @@ export async function POST(req: Request) {
     const data = await response.json();
     
     if (!response.ok) {
-      console.error("[generate-api] OpenRouter Error Details:", data);
-      // Extract the most useful error message possible
-      const errorMessage = data.error?.message || data.error || response.statusText || "Unknown OpenRouter Error";
-      return NextResponse.json({ error: errorMessage }, { status: response.status });
+      console.error("[generate-api] OpenRouter Error:", data);
+      const msg = data.error?.message || "OpenRouter is currently overloaded. Try switching to the Gemini engine.";
+      return NextResponse.json({ error: msg }, { status: response.status });
     }
 
-    if (!data.choices?.[0]?.message?.content) {
-      return NextResponse.json({ error: "OpenRouter returned an empty response. The model might be busy." }, { status: 500 });
+    const text = data.choices?.[0]?.message?.content;
+    if (!text) {
+      return NextResponse.json({ error: "The model returned an empty response. Try a different prompt or engine." }, { status: 500 });
     }
 
-    const text = data.choices[0].message.content;
     return NextResponse.json({ text });
 
   } catch (error: any) {
-    console.error("[generate-api] Unexpected Server Error:", error);
-    return NextResponse.json({ error: error.message || "Internal Server Error" }, { status: 500 });
+    console.error("[generate-api] Fatal Error:", error);
+    return NextResponse.json({ error: "Connection failed. Please check your internet or try again." }, { status: 500 });
   }
 }

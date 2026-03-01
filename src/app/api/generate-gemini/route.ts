@@ -24,7 +24,7 @@ export async function POST(req: Request) {
       contents: [{ role: "user", parts: [{ text: prompt }] }],
       generationConfig: {
         temperature: creativity || 0.7,
-        maxOutputTokens: 2048,
+        max_output_tokens: 2048,
       },
     });
     
