@@ -15,11 +15,8 @@ export async function POST(req: Request) {
 
     const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
     
-    // Explicitly using 'v1' instead of the default 'v1beta' to ensure model availability
-    const model = genAI.getGenerativeModel(
-      { model: "gemini-1.5-flash" },
-      { apiVersion: "v1" }
-    );
+    // Using 'gemini-1.5-flash-latest' which is the most compatible identifier across API versions
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
 
     const result = await model.generateContent({
       contents: [{ role: "user", parts: [{ text: prompt }] }],
@@ -43,7 +40,7 @@ export async function POST(req: Request) {
     
     const errorMessage = error.message || "Unknown Gemini Error";
     return NextResponse.json({ 
-      error: `Gemini API Error: ${errorMessage}. If this persists, ensure your API key has 'Gemini 1.5 Flash' enabled in the Google AI Studio console.` 
+      error: `Gemini API Error: ${errorMessage}. Ensure your API key is valid and has 'Gemini 1.5 Flash' enabled in Google AI Studio.` 
     }, { status: 500 });
   }
 }

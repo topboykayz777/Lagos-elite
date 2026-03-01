@@ -12,7 +12,7 @@ export async function POST(req: Request) {
       }, { status: 500 });
     }
 
-    // Llama 3.1 8B is the current flagship free model on OpenRouter
+    // Switching to Gemma 2 9B Free as it currently has more stable endpoints than Llama 3.1
     const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -22,7 +22,7 @@ export async function POST(req: Request) {
         "X-Title": "Unbound AI Writer",
       },
       body: JSON.stringify({
-        "model": "meta-llama/llama-3.1-8b-instruct:free",
+        "model": "google/gemma-2-9b-it:free",
         "messages": [
           {
             "role": "system",
