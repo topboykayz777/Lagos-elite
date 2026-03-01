@@ -12,12 +12,12 @@ const AGENTS = [
   {
     name: "Sarah Adeyemi",
     role: "Luxury Listing Specialist",
-    image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=1974&auto=format&fit=crop"
+    image: "https://images.unsplash.com/photo-1531123897727-8f129e1688ce?q=80&w=1974&auto=format&fit=crop"
   },
   {
     name: "Chidi Okafor",
     role: "Investment Advisor",
-    image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=2070&auto=format&fit=crop"
+    image: "https://images.unsplash.com/photo-1506277886164-e25aa3f4ef7f?q=80&w=1974&auto=format&fit=crop"
   }
 ];
 

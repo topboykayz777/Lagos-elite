@@ -2,8 +2,29 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Search, MapPin, Building2, DollarSign } from 'lucide-react';
+import { Search, MapPin, Building2 } from 'lucide-react';
 import Link from 'next/link';
+
+const LeafAnimation = () => {
+  return (
+    <div className="absolute inset-0 pointer-events-none overflow-hidden z-10">
+      {[...Array(15)].map((_, i) => (
+        <div
+          key={i}
+          className="animate-leaf absolute text-[#C5A059]/20"
+          style={{
+            left: `${Math.random() * 100}%`,
+            animationDuration: `${10 + Math.random() * 20}s`,
+            animationDelay: `${-Math.random() * 20}s`,
+            fontSize: `${10 + Math.random() * 20}px`
+          }}
+        >
+          🍃
+        </div>
+      ))}
+    </div>
+  );
+};
 
 const Hero = () => {
   return (
@@ -16,7 +37,9 @@ const Hero = () => {
         <div className="absolute inset-0 bg-gradient-to-r from-[#002147] via-[#002147]/40 to-transparent" />
       </div>
 
-      <div className="container mx-auto px-6 relative z-10">
+      <LeafAnimation />
+
+      <div className="container mx-auto px-6 relative z-20">
         <div className="max-w-4xl space-y-10">
           <div className="space-y-6">
             <div className="inline-flex items-center gap-3 px-4 py-2 bg-[#C5A059]/10 border border-[#C5A059]/20 backdrop-blur-sm">
@@ -36,7 +59,7 @@ const Hero = () => {
             </p>
           </div>
 
-          {/* Search Bar - Sharp & Modern */}
+          {/* Search Bar */}
           <div className="bg-white p-1 shadow-2xl flex flex-col md:flex-row items-center max-w-4xl">
             <div className="flex-1 w-full flex items-center gap-4 px-6 py-4 border-b md:border-b-0 md:border-r border-zinc-100">
               <MapPin className="text-[#C5A059] w-5 h-5 shrink-0" />

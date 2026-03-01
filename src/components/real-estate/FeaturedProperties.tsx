@@ -41,7 +41,7 @@ const PROPERTIES = [
     beds: 4,
     baths: 4,
     sqft: "600",
-    image: "https://images.unsplash.com/photo-1600607687940-4e2a09cf159d?q=80&w=2070&auto=format&fit=crop",
+    image: "https://images.unsplash.com/photo-1600566752355-35792bedcfea?q=80&w=2070&auto=format&fit=crop",
     tag: "Hot Deal",
     status: "Sold"
   },

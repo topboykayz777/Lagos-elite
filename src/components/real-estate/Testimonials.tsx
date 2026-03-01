@@ -8,19 +8,19 @@ const TESTIMONIALS = [
     name: "Chief Emeka O.",
     role: "Property Investor",
     content: "Lagos Elite Properties helped me secure a prime acre in Epe. Their transparency regarding land titles is unmatched in this city.",
-    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=1974&auto=format&fit=crop"
+    image: "https://images.unsplash.com/photo-1522529599102-193c0d76b5b6?q=80&w=1974&auto=format&fit=crop"
   },
   {
     name: "Mrs. Adebayo",
     role: "Homeowner in Ikoyi",
     content: "Finding a penthouse that actually matches the pictures is hard in Lagos. They delivered exactly what was promised. Highly professional.",
-    image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=1974&auto=format&fit=crop"
+    image: "https://images.unsplash.com/photo-1567532939604-b6b5b0db2604?q=80&w=1974&auto=format&fit=crop"
   },
   {
     name: "Dr. Segun Alabi",
     role: "Expat Client",
     content: "The seamless process of acquiring my Victoria Island office space while I was still in London was impressive. Best agency in Nigeria.",
-    image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=2070&auto=format&fit=crop"
+    image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=1974&auto=format&fit=crop"
   }
 ];
 

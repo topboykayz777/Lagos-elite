@@ -22,7 +22,7 @@
     @apply tracking-tighter font-bold;
   }
 
-  /* Custom scrollbar for a cleaner look */
+  /* Custom scrollbar */
   ::-webkit-scrollbar {
     width: 6px;
   }
@@ -32,4 +32,25 @@
   ::-webkit-scrollbar-thumb {
     @apply bg-[#C5A059]/50 hover:bg-[#C5A059];
   }
+}
+
+@keyframes leaf-fall {
+  0% {
+    transform: translateY(-10vh) translateX(0) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.8;
+  }
+  90% {
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateY(110vh) translateX(100px) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+.animate-leaf {
+  animation: leaf-fall linear infinite;
 }
