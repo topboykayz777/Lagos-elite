@@ -1,25 +1,18 @@
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
-  // Accessing the environment variable
   const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
 
   try {
     const { prompt, creativity } = await req.json();
 
-    // Log detection status to server console (visible to developers)
-    if (OPENROUTER_API_KEY) {
-      console.log(`[generate-api] ✅ OPENROUTER_API_KEY detected (Length: ${OPENROUTER_API_KEY.length})`);
-    } else {
-      console.error("[generate-api] ❌ CRITICAL: OPENROUTER_API_KEY is NOT found in process.env");
-    }
-
     if (!OPENROUTER_API_KEY || OPENROUTER_API_KEY === "undefined") {
       return NextResponse.json({ 
-        error: "Environment Variable Not Set: The 'OPENROUTER_API_KEY' was not found. 1. Add it to your Secrets/Env tab. 2. Click the RESTART button above this chat." 
+        error: "OPENROUTER_API_KEY is missing. Please add it to the 'Secrets' tab and click RESTART." 
       }, { status: 500 });
     }
 
+    // Switching to Gemma 2 9B Free which is often more reliable than Llama 3.1 Free on OpenRouter
     const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -29,7 +22,7 @@ export async function POST(req: Request) {
         "X-Title": "Unbound AI Writer",
       },
       body: JSON.stringify({
-        "model": "meta-llama/llama-3.1-8b-instruct:free",
+        "model": "google/gemma-2-9b-it:free",
         "messages": [
           {
             "role": "system",
@@ -48,10 +41,14 @@ export async function POST(req: Request) {
     const data = await response.json();
     
     if (!response.ok) {
-      console.error("[generate-api] OpenRouter API Error:", JSON.stringify(data));
-      return NextResponse.json({ 
-        error: data.error?.message || `OpenRouter Error (${response.status}): ${response.statusText}` 
-      }, { status: response.status });
+      console.error("[generate-api] OpenRouter Error Details:", data);
+      // Extract the most useful error message possible
+      const errorMessage = data.error?.message || data.error || response.statusText || "Unknown OpenRouter Error";
+      return NextResponse.json({ error: errorMessage }, { status: response.status });
+    }
+
+    if (!data.choices?.[0]?.message?.content) {
+      return NextResponse.json({ error: "OpenRouter returned an empty response. The model might be busy." }, { status: 500 });
     }
 
     const text = data.choices[0].message.content;
@@ -59,6 +56,6 @@ export async function POST(req: Request) {
 
   } catch (error: any) {
     console.error("[generate-api] Unexpected Server Error:", error);
-    return NextResponse.json({ error: "Internal Server Error: " + (error.message || "Unknown error") }, { status: 500 });
+    return NextResponse.json({ error: error.message || "Internal Server Error" }, { status: 500 });
   }
 }

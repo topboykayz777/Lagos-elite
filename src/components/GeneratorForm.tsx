@@ -90,8 +90,16 @@ const GeneratorForm = () => {
       
       const data = await res.json();
       
-      if (!res.ok) throw new Error(data.error || `Server error (${res.status})`);
+      if (!res.ok) {
+        // Ensure we throw a string message, not an object
+        const errorMsg = typeof data.error === 'string' ? data.error : JSON.stringify(data.error) || "Generation failed";
+        throw new Error(errorMsg);
+      }
       
+      if (!data.text) {
+        throw new Error("The AI returned an empty response. Please try again.");
+      }
+
       setOutput(data.text);
       toast.success("Story generated!");
 
@@ -106,6 +114,7 @@ const GeneratorForm = () => {
       }
       
     } catch (error: any) {
+      console.error("[Generator] Error:", error.message);
       toast.error(error.message || "Generation failed.");
     } finally {
       setIsGenerating(false);
