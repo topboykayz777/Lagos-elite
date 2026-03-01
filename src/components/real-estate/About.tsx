@@ -3,6 +3,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { CheckCircle2 } from 'lucide-react';
+import Link from 'next/link';
 
 const About = () => {
   return (
@@ -54,9 +55,11 @@ const About = () => {
             </div>
 
             <div className="pt-4">
-              <Button className="bg-[#002147] hover:bg-[#003366] text-white h-14 px-10 rounded-none font-bold">
-                LEARN MORE ABOUT US
-              </Button>
+              <Link href="/about">
+                <Button className="bg-[#002147] hover:bg-[#003366] text-white h-14 px-10 rounded-none font-bold">
+                  LEARN MORE ABOUT US
+                </Button>
+              </Link>
             </div>
           </div>
         </div>

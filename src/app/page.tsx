@@ -5,6 +5,7 @@ import About from "@/components/real-estate/About";
 import Services from "@/components/real-estate/Services";
 import Footer from "@/components/real-estate/Footer";
 import WhatsAppCTA from "@/components/real-estate/WhatsAppCTA";
+import Link from 'next/link';
 
 export default function Home() {
   return (
@@ -30,12 +31,16 @@ export default function Home() {
               Our expert agents are ready to guide you through the most exclusive property market in Africa.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <button className="bg-[#C5A059] hover:bg-[#b38f4d] text-white px-10 py-4 font-bold transition-all active:scale-95">
-                BOOK A CONSULTATION
-              </button>
-              <button className="border border-white/20 text-white hover:bg-white/10 px-10 py-4 font-bold transition-all">
-                VIEW LISTINGS
-              </button>
+              <Link href="/contact">
+                <button className="bg-[#C5A059] hover:bg-[#b38f4d] text-white px-10 py-4 font-bold transition-all active:scale-95">
+                  BOOK A CONSULTATION
+                </button>
+              </Link>
+              <Link href="/properties">
+                <button className="border border-white/20 text-white hover:bg-white/10 px-10 py-4 font-bold transition-all">
+                  VIEW LISTINGS
+                </button>
+              </Link>
             </div>
           </div>
         </section>

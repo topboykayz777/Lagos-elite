@@ -2,15 +2,15 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Search, MapPin, Building2, DollarSign } from 'lucide-react';
+import Link from 'next/link';
 
 const Hero = () => {
   return (
     <section className="relative h-screen min-h-[700px] flex items-center justify-center overflow-hidden">
       {/* Background Image with Overlay */}
       <div 
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat scale-105 animate-pulse-slow"
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat scale-105"
         style={{ backgroundImage: "url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=2070&auto=format&fit=crop')" }}
       >
         <div className="absolute inset-0 bg-gradient-to-r from-[#002147]/90 via-[#002147]/60 to-transparent" />
@@ -70,9 +70,11 @@ const Hero = () => {
               </div>
             </div>
 
-            <Button className="w-full md:w-auto bg-[#002147] hover:bg-[#003366] text-white h-14 px-8 rounded-none font-bold flex items-center gap-2">
-              <Search className="w-5 h-5" /> SEARCH
-            </Button>
+            <Link href="/properties" className="w-full md:w-auto">
+              <Button className="w-full bg-[#002147] hover:bg-[#003366] text-white h-14 px-8 rounded-none font-bold flex items-center gap-2">
+                <Search className="w-5 h-5" /> SEARCH
+              </Button>
+            </Link>
           </div>
 
           <div className="flex items-center gap-8 pt-4">

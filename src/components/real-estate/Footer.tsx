@@ -4,6 +4,7 @@ import React from 'react';
 import { Home, Mail, Phone, MapPin, Instagram, Facebook, Twitter, Linkedin } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 
 const Footer = () => {
   return (
@@ -39,11 +40,11 @@ const Footer = () => {
           <div className="space-y-6">
             <h3 className="text-lg font-bold border-b border-white/10 pb-4">Quick Links</h3>
             <ul className="space-y-3 text-sm text-zinc-400">
-              <li><a href="#" className="hover:text-[#C5A059] transition-colors">Home</a></li>
-              <li><a href="#properties" className="hover:text-[#C5A059] transition-colors">Featured Properties</a></li>
-              <li><a href="#about" className="hover:text-[#C5A059] transition-colors">About Us</a></li>
-              <li><a href="#services" className="hover:text-[#C5A059] transition-colors">Our Services</a></li>
-              <li><a href="#" className="hover:text-[#C5A059] transition-colors">Privacy Policy</a></li>
+              <li><Link href="/" className="hover:text-[#C5A059] transition-colors">Home</Link></li>
+              <li><Link href="/properties" className="hover:text-[#C5A059] transition-colors">Featured Properties</Link></li>
+              <li><Link href="/about" className="hover:text-[#C5A059] transition-colors">About Us</Link></li>
+              <li><Link href="/services" className="hover:text-[#C5A059] transition-colors">Our Services</Link></li>
+              <li><Link href="/contact" className="hover:text-[#C5A059] transition-colors">Contact Us</Link></li>
             </ul>
           </div>
 
