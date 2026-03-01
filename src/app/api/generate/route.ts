@@ -12,7 +12,7 @@ export async function POST(req: Request) {
       }, { status: 500 });
     }
 
-    // Using Gemma 2 9B Free - generally more stable than Llama free endpoints
+    // Switching to Mistral 7B Instruct Free - typically the most stable free endpoint on OpenRouter
     const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -22,7 +22,7 @@ export async function POST(req: Request) {
         "X-Title": "Unbound AI Writer",
       },
       body: JSON.stringify({
-        "model": "google/gemma-2-9b-it:free",
+        "model": "mistralai/mistral-7b-instruct:free",
         "messages": [
           {
             "role": "system",
@@ -42,7 +42,6 @@ export async function POST(req: Request) {
     
     if (!response.ok) {
       console.error("[openrouter] API Error:", data);
-      // Return the specific error from OpenRouter to help debugging
       const errorDetail = data.error?.message || data.error || "Provider returned error";
       return NextResponse.json({ error: errorDetail }, { status: response.status });
     }

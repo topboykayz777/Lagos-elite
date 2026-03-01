@@ -15,7 +15,7 @@ export async function POST(req: Request) {
 
     const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
     
-    // Using the most standard model name to avoid 404s
+    // Using 'gemini-1.5-flash' explicitly. If 404 persists, it's often an API key restriction or region issue.
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
     const result = await model.generateContent({
@@ -38,9 +38,10 @@ export async function POST(req: Request) {
   } catch (error: any) {
     console.error("[gemini-api] Error:", error);
     
+    // If gemini-1.5-flash fails with 404, it might be because the project doesn't have access to that specific model name
     const errorMessage = error.message || "Unknown Gemini Error";
     return NextResponse.json({ 
-      error: `Gemini Error: ${errorMessage}. Ensure your API key is valid and has 'Gemini 1.5 Flash' enabled.` 
+      error: `Gemini Error: ${errorMessage}. Try switching to OpenRouter if this persists.` 
     }, { status: 500 });
   }
 }
