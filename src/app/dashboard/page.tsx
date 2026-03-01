@@ -24,9 +24,21 @@ import {
 import { toast } from 'sonner';
 import IdentityTags from '@/components/dashboard/IdentityTags';
 
+interface UserStats {
+  stories: number;
+  premium: boolean;
+  score: number;
+  identity: string[];
+}
+
 export default function DashboardPage() {
   const [profile, setProfile] = useState<any>(null);
-  const [stats, setStats] = useState({ stories: 0, premium: false, score: 0, identity: [] });
+  const [stats, setStats] = useState<UserStats>({ 
+    stories: 0, 
+    premium: false, 
+    score: 0, 
+    identity: [] 
+  });
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
 
