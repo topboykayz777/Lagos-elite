@@ -12,7 +12,7 @@ export async function POST(req: Request) {
       }, { status: 500 });
     }
 
-    // Switching to Mistral 7B Instruct Free - typically the most stable free endpoint on OpenRouter
+    // 'mistralai/mistral-7b-instruct:free' is currently the most reliable free model on OpenRouter
     const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
