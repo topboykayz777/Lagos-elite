@@ -7,16 +7,13 @@ export async function POST(req: Request) {
   try {
     const { prompt, creativity } = await req.json();
 
-    // Log for server-side debugging
-    if (GEMINI_API_KEY) {
-      console.log(`[gemini-api] ✅ GEMINI_API_KEY detected (Length: ${GEMINI_API_KEY.length})`);
+    // Server-side logging to verify if the key is being picked up
+    if (GEMINI_API_KEY && GEMINI_API_KEY !== "undefined") {
+      console.log(`[gemini-api] ✅ Key detected. Proceeding with generation.`);
     } else {
-      console.error("[gemini-api] ❌ CRITICAL: GEMINI_API_KEY is NOT found in process.env");
-    }
-
-    if (!GEMINI_API_KEY || GEMINI_API_KEY === "undefined") {
+      console.error("[gemini-api] ❌ Key is missing from process.env");
       return NextResponse.json({ 
-        error: "GEMINI_API_KEY MISSING: Please add 'GEMINI_API_KEY' to your Secrets tab and click RESTART." 
+        error: "GEMINI_API_KEY is missing. Please add it to the 'Secrets' tab in the UI and click RESTART." 
       }, { status: 500 });
     }
 
@@ -40,7 +37,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ text });
 
   } catch (error: any) {
-    console.error("[gemini-api] Unexpected Error:", error);
+    console.error("[gemini-api] Error:", error);
     return NextResponse.json({ error: "Gemini API Error: " + (error.message || "Unknown error") }, { status: 500 });
   }
 }
