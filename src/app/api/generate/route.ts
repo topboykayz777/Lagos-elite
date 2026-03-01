@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 
-// OpenRouter is the best way to access uncensored models like Llama 3 Dolphin or Mythomax
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
 
 export async function POST(req: Request) {
@@ -8,7 +7,10 @@ export async function POST(req: Request) {
     const { prompt, creativity } = await req.json();
 
     if (!OPENROUTER_API_KEY) {
-      return NextResponse.json({ error: "API Key not configured. Please add OPENROUTER_API_KEY to your environment." }, { status: 500 });
+      console.error("[generate-api] Missing OPENROUTER_API_KEY");
+      return NextResponse.json({ 
+        error: "API Key not configured. Please add OPENROUTER_API_KEY to your environment variables." 
+      }, { status: 500 });
     }
 
     const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
@@ -16,11 +18,10 @@ export async function POST(req: Request) {
       headers: {
         "Authorization": `Bearer ${OPENROUTER_API_KEY}`,
         "Content-Type": "application/json",
-        "HTTP-Referer": "https://unbound-ai.com", // Optional
-        "X-Title": "Unbound AI Writer", // Optional
+        "HTTP-Referer": "https://unbound-ai.com",
+        "X-Title": "Unbound AI Writer",
       },
       body: JSON.stringify({
-        // Using a model known for being uncensored and high quality
         "model": "meta-llama/llama-3-8b-instruct:free", 
         "messages": [
           {
@@ -40,6 +41,7 @@ export async function POST(req: Request) {
     const data = await response.json();
     
     if (data.error) {
+      console.error("[generate-api] OpenRouter Error:", data.error);
       throw new Error(data.error.message || "OpenRouter Error");
     }
 
@@ -47,7 +49,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ text });
   } catch (error: any) {
-    console.error("Generation Error:", error);
+    console.error("[generate-api] Generation Error:", error);
     return NextResponse.json({ error: error.message || "Failed to generate content." }, { status: 500 });
   }
 }

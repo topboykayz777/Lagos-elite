@@ -6,9 +6,9 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { QRCodeSVG } from 'qrcode.react';
-import { Copy, Check, Coins, Zap, Send } from 'lucide-react';
+import { Copy, Check, Coins, Zap, Send, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/integrations/supabase/client';
 
 const MONERO_ADDRESS = "44AFFq5kSiGBoZ4NMD2MrA88zkX6W9X3B9iZCcCZiMH3CwSqiTDvAn6Vi8D98G5W9X3B9iZCcCZiMH3CwSqiTDvAn6Vi8D98G5";
 
@@ -25,7 +25,7 @@ export default function PremiumPage() {
   };
 
   const handleSubmitTx = async () => {
-    if (txId.length < 10) {
+    if (!txId.trim() || txId.length < 10) {
       toast.error("Please enter a valid Transaction ID or Hash.");
       return;
     }
@@ -34,19 +34,28 @@ export default function PremiumPage() {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       
-      // Store the request in a 'premium_requests' table for you to verify
+      if (!user) {
+        // Try to sign in anonymously if not already
+        const { data: authData, error: authError } = await supabase.auth.signInAnonymously();
+        if (authError) throw authError;
+        var currentUserId = authData.user?.id;
+      } else {
+        var currentUserId = user.id;
+      }
+
       const { error } = await supabase.from('premium_requests').insert({
-        user_id: user?.id,
+        user_id: currentUserId,
         tx_id: txId,
         status: 'pending'
       });
 
       if (error) throw error;
 
-      toast.success("Transaction submitted! We will verify it shortly.");
+      toast.success("Transaction submitted! Verification usually takes 1-6 hours.");
       setTxId("");
     } catch (error: any) {
-      toast.error("Failed to submit. Try again later.");
+      console.error("Submission error:", error);
+      toast.error(error.message || "Failed to submit. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -64,7 +73,6 @@ export default function PremiumPage() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl w-full">
-          {/* Step 1: Pay */}
           <Card className="border-white/5 bg-white/[0.02] backdrop-blur-md">
             <CardHeader>
               <div className="w-10 h-10 bg-orange-500/20 rounded-full flex items-center justify-center mb-2">
@@ -89,7 +97,6 @@ export default function PremiumPage() {
             </CardContent>
           </Card>
 
-          {/* Step 2: Verify */}
           <Card className="border-violet-500/20 bg-violet-500/[0.02] backdrop-blur-md">
             <CardHeader>
               <div className="w-10 h-10 bg-violet-500/20 rounded-full flex items-center justify-center mb-2">
@@ -113,7 +120,11 @@ export default function PremiumPage() {
                 disabled={isSubmitting}
                 className="w-full bg-violet-600 hover:bg-violet-700 text-white h-12 font-bold"
               >
-                {isSubmitting ? "Submitting..." : "Activate Premium"}
+                {isSubmitting ? (
+                  <span className="flex items-center gap-2">
+                    <Loader2 className="w-4 h-4 animate-spin" /> Submitting...
+                  </span>
+                ) : "Activate Premium"}
               </Button>
               
               <div className="p-4 rounded-lg bg-white/5 border border-white/5 text-[11px] text-zinc-500 leading-relaxed">
