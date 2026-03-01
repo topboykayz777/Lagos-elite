@@ -12,7 +12,7 @@ export async function POST(req: Request) {
       }, { status: 500 });
     }
 
-    // Llama 3 8B Free is currently very stable on OpenRouter
+    // Llama 3.1 8B is the current flagship free model on OpenRouter
     const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -22,7 +22,7 @@ export async function POST(req: Request) {
         "X-Title": "Unbound AI Writer",
       },
       body: JSON.stringify({
-        "model": "meta-llama/llama-3-8b-instruct:free",
+        "model": "meta-llama/llama-3.1-8b-instruct:free",
         "messages": [
           {
             "role": "system",
@@ -41,7 +41,8 @@ export async function POST(req: Request) {
     const data = await response.json();
     
     if (!response.ok) {
-      const msg = data.error?.message || "OpenRouter is currently overloaded. Try switching to the Gemini engine.";
+      console.error("[openrouter] Error response:", data);
+      const msg = data.error?.message || "OpenRouter free tier is currently unavailable. Please try the Gemini engine.";
       return NextResponse.json({ error: msg }, { status: response.status });
     }
 

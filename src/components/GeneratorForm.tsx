@@ -91,7 +91,6 @@ const GeneratorForm = () => {
       const data = await res.json();
       
       if (!res.ok) {
-        // Ensure we throw a string message, not an object
         const errorMsg = typeof data.error === 'string' ? data.error : JSON.stringify(data.error) || "Generation failed";
         throw new Error(errorMsg);
       }
