@@ -12,7 +12,11 @@ import {
   History, 
   CreditCard,
   CheckCircle2,
-  AlertCircle
+  AlertCircle,
+  Copy,
+  Check,
+  Key,
+  Download
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -20,6 +24,7 @@ export default function DashboardPage() {
   const [profile, setProfile] = useState<any>(null);
   const [stats, setStats] = useState({ stories: 0, premium: false });
   const [loading, setLoading] = useState(true);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     fetchUserData();
@@ -49,6 +54,14 @@ export default function DashboardPage() {
     setLoading(false);
   };
 
+  const copyKey = () => {
+    if (!profile?.id) return;
+    navigator.clipboard.writeText(profile.id);
+    setCopied(true);
+    toast.success("Recovery key copied!");
+    setTimeout(() => setCopied(false), 2000);
+  };
+
   return (
     <div className="min-h-screen bg-[#050505] text-zinc-100">
       <Navbar />
@@ -61,7 +74,7 @@ export default function DashboardPage() {
             </div>
             <div>
               <h1 className="text-3xl font-black tracking-tighter">Anonymous <span className="text-violet-400">User</span></h1>
-              <p className="text-zinc-500 font-mono text-xs mt-1">{profile?.id || 'Loading...'}</p>
+              <p className="text-zinc-500 font-mono text-xs mt-1">Session Active</p>
               <div className="flex items-center gap-2 mt-3">
                 {stats.premium ? (
                   <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-green-500/10 border border-green-500/20 text-green-400 text-[10px] font-bold uppercase tracking-wider">
@@ -113,25 +126,21 @@ export default function DashboardPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div className="space-y-4">
               <h3 className="text-xl font-bold flex items-center gap-2">
-                <CreditCard className="w-5 h-5 text-violet-500" /> Subscription
+                <Key className="w-5 h-5 text-violet-500" /> Session Recovery
               </h3>
               <Card className="bg-white/[0.02] border-white/5 overflow-hidden">
                 <div className="p-6 space-y-4">
-                  <div className="flex items-center justify-between">
-                    <span className="text-zinc-400">Current Plan</span>
-                    <span className="font-bold">{stats.premium ? 'Unbound Pro' : 'Free'}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-zinc-400">Payment Method</span>
-                    <span className="flex items-center gap-1 font-mono text-xs">
-                      <Zap className="w-3 h-3 text-orange-500" /> Monero (XMR)
-                    </span>
-                  </div>
-                  {!stats.premium && (
-                    <Button className="w-full bg-violet-600 hover:bg-violet-700 mt-4">
-                      Upgrade Now
+                  <p className="text-sm text-zinc-400 leading-relaxed">
+                    This is your unique recovery key. Save it somewhere safe. If you clear your browser data, you'll need this to restore your library.
+                  </p>
+                  <div className="flex items-center gap-2 p-3 bg-black/40 rounded-xl border border-white/10">
+                    <code className="text-[10px] font-mono text-violet-400 flex-1 truncate">
+                      {profile?.id || 'Loading...'}
+                    </code>
+                    <Button variant="ghost" size="icon" onClick={copyKey} className="shrink-0 hover:bg-white/5">
+                      {copied ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
                     </Button>
-                  )}
+                  </div>
                 </div>
               </Card>
             </div>
@@ -143,10 +152,10 @@ export default function DashboardPage() {
               <div className="p-6 rounded-2xl bg-orange-500/5 border border-orange-500/10 space-y-3">
                 <p className="text-sm text-zinc-400 leading-relaxed">
                   You are currently using an <span className="text-orange-400 font-bold">Anonymous Session</span>. 
-                  If you clear your browser cookies, you will lose access to your library and premium status.
+                  We do not store your IP, email, or identity. Your stories are encrypted and tied to your recovery key.
                 </p>
-                <Button variant="outline" className="w-full border-orange-500/20 text-orange-400 hover:bg-orange-500/10">
-                  Backup Session Key
+                <Button variant="outline" className="w-full border-orange-500/20 text-orange-400 hover:bg-orange-500/10 gap-2">
+                  <Download className="w-4 h-4" /> Export All Data
                 </Button>
               </div>
             </div>
