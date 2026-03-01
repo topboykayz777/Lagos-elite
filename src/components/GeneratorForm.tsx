@@ -32,7 +32,6 @@ import { cn } from '@/lib/utils';
 import StylePresets from './generator/StylePresets';
 import OutputDisplay from './generator/OutputDisplay';
 import StoryBeats from './generator/StoryBeats';
-import { generateStoryAction } from '@/app/actions/ai-actions';
 
 const MODELS = [
   { id: "auto", name: "Auto-Rotate (Recommended)" },
@@ -106,15 +105,21 @@ const GeneratorForm = () => {
       }
       fullPrompt += `\n\nTarget length: ${length[0]} words.`;
 
-      const result = await generateStoryAction(
-        fullPrompt, 
-        creativity[0], 
-        currentProvider,
-        selectedModel === "auto" ? undefined : selectedModel
-      );
-      
-      if (!result || !result.text) {
-        throw new Error("The AI returned an empty response.");
+      const response = await fetch('/api/ai', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          prompt: fullPrompt,
+          creativity: creativity[0],
+          provider: currentProvider,
+          specificModel: selectedModel === "auto" ? undefined : selectedModel
+        })
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || "Failed to generate story.");
       }
 
       setOutput(result.text);
@@ -132,6 +137,7 @@ const GeneratorForm = () => {
       console.error("[Generator] Error:", error.message);
       setLastError(error.message);
       
+      // Automatic fallback to Gemini if OpenRouter fails and we are in auto mode
       if (currentProvider === "openrouter" && !forceProvider && selectedModel === "auto") {
         toast.info("OpenRouter failed. Trying Gemini fallback...");
         return handleGenerate(customPrompt, "gemini");
@@ -151,7 +157,7 @@ const GeneratorForm = () => {
             <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest flex items-center gap-1.5">
               <ShieldCheck className="w-3 h-3 text-green-500" /> System Status
             </span>
-            <span className="text-[10px] font-mono text-violet-400">v4.8-FORGE</span>
+            <span className="text-[10px] font-mono text-violet-400">v5.0-FIXED</span>
           </div>
           <div className="grid grid-cols-2 gap-2">
             <div className="px-2 py-1.5 rounded-lg bg-black/40 border border-white/5 flex flex-col">
@@ -173,6 +179,9 @@ const GeneratorForm = () => {
                 <p className="font-bold uppercase text-[10px]">Generation Error</p>
                 <p className="leading-relaxed opacity-80">{lastError}</p>
               </div>
+            </div>
+            <div className="text-[10px] text-zinc-500 italic">
+              Tip: Check your API keys in the "Secrets" tab.
             </div>
           </div>
         )}
@@ -216,6 +225,23 @@ const GeneratorForm = () => {
                 Gemini
               </button>
             </div>
+
+            {provider === "openrouter" && (
+              <div className="space-y-2 animate-in fade-in slide-in-from-top-1">
+                <Select value={selectedModel} onValueChange={setSelectedModel}>
+                  <SelectTrigger className="bg-black/40 border-white/10 h-10 text-xs">
+                    <SelectValue placeholder="Select a model" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-zinc-900 border-white/10 text-zinc-300">
+                    {MODELS.map(m => (
+                      <SelectItem key={m.id} value={m.id} className="text-xs focus:bg-violet-600 focus:text-white">
+                        {m.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
           </div>
 
           {isAdvanced && (
