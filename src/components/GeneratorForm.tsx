@@ -134,6 +134,10 @@ const GeneratorForm = () => {
             <Bug className="w-3 h-3" /> 
             <span>ACTIVE PROVIDER: <span className="text-violet-400 font-bold uppercase">{provider}</span></span>
           </div>
+          <div className="flex items-center gap-2">
+            <Cpu className="w-3 h-3" /> 
+            <span>MODEL: <span className="text-zinc-300">{provider === 'openrouter' ? 'gemma-2-9b-it:free' : 'gemini-1.5-flash'}</span></span>
+          </div>
         </div>
 
         {authError && (

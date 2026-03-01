@@ -12,6 +12,7 @@ export async function POST(req: Request) {
       }, { status: 500 });
     }
 
+    // Using 'google/gemma-2-9b-it:free' as it is currently one of the most stable free models on OpenRouter
     const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -21,7 +22,7 @@ export async function POST(req: Request) {
         "X-Title": "Unbound AI Writer",
       },
       body: JSON.stringify({
-        "model": "mistralai/mistral-7b-instruct:free",
+        "model": "google/gemma-2-9b-it:free",
         "messages": [
           {
             "role": "system",
@@ -32,7 +33,7 @@ export async function POST(req: Request) {
             "content": prompt
           }
         ],
-        "temperature": creativity || 0.9, // Higher temperature for more 'unbound' creativity
+        "temperature": creativity || 0.9,
         "max_tokens": 2048,
       })
     });
@@ -52,6 +53,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ text });
 
   } catch (error: any) {
+    console.error("[openrouter-api] Error:", error);
     return NextResponse.json({ error: "Network error connecting to OpenRouter." }, { status: 500 });
   }
 }
