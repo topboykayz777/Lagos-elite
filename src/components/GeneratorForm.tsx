@@ -16,7 +16,8 @@ import {
   Zap,
   Flame,
   Ghost,
-  Skull
+  Skull,
+  AlertCircle
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
@@ -38,15 +39,22 @@ const GeneratorForm = () => {
   const [history, setHistory] = useState<any[]>([]);
   const [user, setUser] = useState<any>(null);
   const [isPremium, setIsPremium] = useState(false);
+  const [authError, setAuthError] = useState(false);
 
   useEffect(() => {
     const initAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        const { data } = await supabase.auth.signInAnonymously();
-        if (data.user) setUser(data.user);
-      } else {
-        setUser(session.user);
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) {
+          const { data, error } = await supabase.auth.signInAnonymously();
+          if (error) throw error;
+          setUser(data.user);
+        } else {
+          setUser(session.user);
+        }
+      } catch (err) {
+        console.error("Auth error:", err);
+        setAuthError(true);
       }
     };
     initAuth();
@@ -60,13 +68,20 @@ const GeneratorForm = () => {
   }, [user]);
 
   const checkPremiumStatus = async () => {
-    const { data } = await supabase
-      .from('profiles')
-      .select('subscription_status')
-      .eq('id', user.id)
-      .single();
-    
-    setIsPremium(data?.subscription_status === 'active');
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('subscription_status')
+        .eq('id', user.id)
+        .single();
+      
+      if (data) {
+        setIsPremium(data.subscription_status === 'active');
+      }
+    } catch (err) {
+      // If profile doesn't exist, user is definitely not premium
+      setIsPremium(false);
+    }
   };
 
   const fetchHistory = async () => {
@@ -82,15 +97,21 @@ const GeneratorForm = () => {
     if (isPremium) return true;
 
     const today = new Date().toISOString().split('T')[0];
-    const { count } = await supabase
+    const { count, error } = await supabase
       .from('stories')
       .select('*', { count: 'exact', head: true })
       .gte('created_at', today);
     
+    if (error) return true; // Fail open if we can't check
     return (count || 0) < 5;
   };
 
   const handleGenerate = async () => {
+    if (authError) {
+      toast.error("Authentication failed. Please ensure Anonymous Auth is enabled in Supabase.");
+      return;
+    }
+
     if (!prompt.trim()) {
       toast.error("Please enter a prompt first.");
       return;
@@ -113,7 +134,7 @@ const GeneratorForm = () => {
       });
       
       const data = await res.json();
-      if (data.error) throw new Error(data.error);
+      if (!res.ok) throw new Error(data.error || "Generation failed");
       
       setOutput(data.text);
       
@@ -128,7 +149,7 @@ const GeneratorForm = () => {
       
       toast.success("Story generated!");
     } catch (error: any) {
-      toast.error(error.message || "Generation failed.");
+      toast.error(error.message || "Generation failed. Check your API key.");
     } finally {
       setIsGenerating(false);
     }
@@ -141,6 +162,13 @@ const GeneratorForm = () => {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
       <div className="lg:col-span-4 space-y-6">
+        {authError && (
+          <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-xs flex items-start gap-3">
+            <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+            <p>Anonymous Auth is disabled in Supabase. The generator will not be able to save your history.</p>
+          </div>
+        )}
+
         <div className="p-6 rounded-2xl border border-white/5 bg-white/[0.02] space-y-6">
           <div className="space-y-3">
             <Label className="text-sm font-medium text-zinc-400">Style Presets</Label>
@@ -209,7 +237,7 @@ const GeneratorForm = () => {
             </div>
           </div>
           <div className="space-y-2 max-h-[200px] overflow-y-auto pr-2 custom-scrollbar">
-            {history.map((item) => (
+            {history.length > 0 ? history.map((item) => (
               <button 
                 key={item.id}
                 onClick={() => { setPrompt(item.prompt); setOutput(item.content); }}
@@ -217,7 +245,9 @@ const GeneratorForm = () => {
               >
                 {item.prompt}
               </button>
-            ))}
+            )) : (
+              <p className="text-[10px] text-zinc-600 text-center py-4">No history yet</p>
+            )}
           </div>
         </div>
       </div>
