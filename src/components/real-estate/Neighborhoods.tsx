@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { ChevronRight } from 'lucide-react';
 
 const AREAS = [
-  { name: "Ikoyi", count: 42, image: "https://images.unsplash.com/photo-1590059414167-6ed97d33630e?q=80&w=1974&auto=format&fit=crop" },
+  { name: "Ikoyi", count: 42, image: "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?q=80&w=1974&auto=format&fit=crop" },
   { name: "Lekki Phase 1", count: 85, image: "https://images.unsplash.com/photo-1628624747186-a941c476b7ef?q=80&w=2070&auto=format&fit=crop" },
   { name: "Victoria Island", count: 31, image: "https://images.unsplash.com/photo-1582407947304-fd86f028f716?q=80&w=1992&auto=format&fit=crop" },
   { name: "Epe / Ibeju-Lekki", count: 120, image: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?q=80&w=1932&auto=format&fit=crop" }
