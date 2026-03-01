@@ -1,9 +1,11 @@
 import Navbar from "@/components/real-estate/Navbar";
 import Hero from "@/components/real-estate/Hero";
 import Partners from "@/components/real-estate/Partners";
+import Neighborhoods from "@/components/real-estate/Neighborhoods";
 import FeaturedProperties from "@/components/real-estate/FeaturedProperties";
 import About from "@/components/real-estate/About";
 import Services from "@/components/real-estate/Services";
+import Agents from "@/components/real-estate/Agents";
 import Testimonials from "@/components/real-estate/Testimonials";
 import FAQ from "@/components/real-estate/FAQ";
 import Footer from "@/components/real-estate/Footer";
@@ -18,9 +20,11 @@ export default function Home() {
       <main>
         <Hero />
         <Partners />
+        <Neighborhoods />
         <FeaturedProperties />
         <About />
         <Services />
+        <Agents />
         <Testimonials />
         <FAQ />
         

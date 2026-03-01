@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Bed, Bath, Square, MapPin, Heart } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
+import { cn } from '@/lib/utils';
 
 const PROPERTIES = [
   {
@@ -17,7 +18,8 @@ const PROPERTIES = [
     baths: 6,
     sqft: "1,200",
     image: "https://images.unsplash.com/photo-1613490493576-7fde63acd811?q=80&w=2071&auto=format&fit=crop",
-    tag: "Featured"
+    tag: "Featured",
+    status: "Available"
   },
   {
     id: 2,
@@ -28,7 +30,8 @@ const PROPERTIES = [
     baths: 5,
     sqft: "850",
     image: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=80&w=2070&auto=format&fit=crop",
-    tag: "New Listing"
+    tag: "New Listing",
+    status: "Under Offer"
   },
   {
     id: 3,
@@ -39,7 +42,8 @@ const PROPERTIES = [
     baths: 4,
     sqft: "600",
     image: "https://images.unsplash.com/photo-1600607687940-4e2a09cf159d?q=80&w=2070&auto=format&fit=crop",
-    tag: "Hot Deal"
+    tag: "Hot Deal",
+    status: "Sold"
   }
 ];
 
@@ -67,11 +71,21 @@ const FeaturedProperties = () => {
                   <img 
                     src={property.image} 
                     alt={property.title}
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                    className={cn(
+                      "w-full h-full object-cover transition-transform duration-700 group-hover:scale-110",
+                      property.status === "Sold" && "grayscale"
+                    )}
                   />
-                  <div className="absolute top-4 left-4">
+                  <div className="absolute top-4 left-4 flex flex-col gap-2">
                     <Badge className="bg-[#C5A059] text-white rounded-none px-3 py-1 font-bold uppercase text-[10px]">
                       {property.tag}
+                    </Badge>
+                    <Badge className={cn(
+                      "rounded-none px-3 py-1 font-bold uppercase text-[10px]",
+                      property.status === "Sold" ? "bg-red-600 text-white" : 
+                      property.status === "Under Offer" ? "bg-orange-500 text-white" : "bg-green-600 text-white"
+                    )}>
+                      {property.status}
                     </Badge>
                   </div>
                   <button className="absolute top-4 right-4 w-10 h-10 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-white hover:bg-white hover:text-red-500 transition-colors">
