@@ -6,16 +6,19 @@ export async function POST(req: Request) {
   try {
     const { prompt, creativity } = await req.json();
 
-    console.log("[generate-api] Request received for prompt:", prompt.substring(0, 50) + "...");
+    // Debug log to help the user verify the key exists without leaking it
+    if (OPENROUTER_API_KEY) {
+      console.log(`[generate-api] API Key detected. Length: ${OPENROUTER_API_KEY.length} chars.`);
+    } else {
+      console.error("[generate-api] CRITICAL: OPENROUTER_API_KEY is undefined in process.env");
+    }
 
     if (!OPENROUTER_API_KEY) {
-      console.error("[generate-api] CRITICAL: OPENROUTER_API_KEY is missing from environment variables.");
       return NextResponse.json({ 
         error: "API Key Missing. Please add 'OPENROUTER_API_KEY' to your environment variables and click 'Restart' above the chat." 
       }, { status: 500 });
     }
 
-    // We'll try Llama 3.1 8B Free first, as it's the most reliable free model
     const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -50,13 +53,7 @@ export async function POST(req: Request) {
       }, { status: response.status });
     }
 
-    if (!data.choices || data.choices.length === 0) {
-      console.error("[generate-api] OpenRouter returned no choices:", JSON.stringify(data));
-      return NextResponse.json({ error: "The AI model returned an empty response. This usually happens if the free model is overloaded. Try again in a moment." }, { status: 500 });
-    }
-
     const text = data.choices[0].message.content;
-    console.log("[generate-api] Success! Generated", text.length, "characters.");
     return NextResponse.json({ text });
 
   } catch (error: any) {
