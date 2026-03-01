@@ -13,8 +13,9 @@ import {
   Clock,
   Maximize2,
   Minimize2,
-  Share2,
-  Download
+  Download,
+  FileText,
+  Share2
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
@@ -42,6 +43,16 @@ const OutputDisplay = ({ output, isGenerating, provider, onClear, onRefine }: Ou
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const downloadMarkdown = () => {
+    const element = document.createElement("a");
+    const file = new Blob([`# Unbound AI Story\n\n${output}`], {type: 'text/markdown'});
+    element.href = URL.createObjectURL(file);
+    element.download = `unbound-story-${Date.now()}.md`;
+    document.body.appendChild(element);
+    element.click();
+    toast.success("Markdown exported!");
+  };
+
   const handleRefineSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!refineInput.trim()) return;
@@ -52,7 +63,7 @@ const OutputDisplay = ({ output, isGenerating, provider, onClear, onRefine }: Ou
   const toggleZenMode = () => {
     setIsZenMode(!isZenMode);
     if (!isZenMode) {
-      toast.info("Zen Mode Active. Press ESC or the button to exit.");
+      toast.info("Zen Mode Active. Press ESC to exit.");
     }
   };
 
@@ -81,13 +92,10 @@ const OutputDisplay = ({ output, isGenerating, provider, onClear, onRefine }: Ou
                   <Clock className="w-3 h-3" /> {readingTime} min read
                 </div>
               </div>
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                onClick={toggleZenMode} 
-                className="h-8 w-8 text-zinc-400 hover:text-violet-400"
-                title={isZenMode ? "Exit Zen Mode" : "Enter Zen Mode"}
-              >
+              <Button variant="ghost" size="icon" onClick={downloadMarkdown} className="h-8 w-8 text-zinc-400 hover:text-violet-400" title="Export Markdown">
+                <FileText className="w-4 h-4" />
+              </Button>
+              <Button variant="ghost" size="icon" onClick={toggleZenMode} className="h-8 w-8 text-zinc-400 hover:text-violet-400">
                 {isZenMode ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
               </Button>
               <Button variant="ghost" size="icon" onClick={handleCopy} className="h-8 w-8 text-zinc-400 hover:text-white">
@@ -114,7 +122,6 @@ const OutputDisplay = ({ output, isGenerating, provider, onClear, onRefine }: Ou
             <div className="h-4 bg-white/5 rounded w-full" />
             <div className="h-4 bg-white/5 rounded w-5/6" />
             <div className="h-4 bg-white/5 rounded w-2/3" />
-            <div className="h-4 bg-white/5 rounded w-4/5" />
           </div>
         ) : output ? (
           <div className="prose prose-invert max-w-none animate-in fade-in slide-in-from-bottom-4 duration-700">
@@ -136,7 +143,7 @@ const OutputDisplay = ({ output, isGenerating, provider, onClear, onRefine }: Ou
               <RotateCcw className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
               <input 
                 type="text"
-                placeholder="Refine this story (e.g., 'Make it darker', 'Add more dialogue')..."
+                placeholder="Refine this story..."
                 className="w-full bg-white/5 border border-white/10 rounded-xl pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500/50 transition-all"
                 value={refineInput}
                 onChange={(e) => setRefineInput(e.target.value)}
@@ -149,7 +156,7 @@ const OutputDisplay = ({ output, isGenerating, provider, onClear, onRefine }: Ou
               type="button" 
               variant="outline" 
               className="border-white/10 hover:bg-white/5"
-              onClick={() => onRefine("Continue the story from where it left off, maintaining the same tone and style.")}
+              onClick={() => onRefine("Continue the story from where it left off.")}
             >
               Continue <ChevronRight className="w-4 h-4 ml-1" />
             </Button>

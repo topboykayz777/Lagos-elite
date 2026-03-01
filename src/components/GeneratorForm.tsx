@@ -25,14 +25,13 @@ import {
   ShieldCheck,
   Users,
   MapPin,
-  ChevronDown,
-  ChevronUp
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
 import StylePresets from './generator/StylePresets';
 import OutputDisplay from './generator/OutputDisplay';
+import StoryBeats from './generator/StoryBeats';
 import { generateStoryAction } from '@/app/actions/ai-actions';
 
 const MODELS = [
@@ -47,6 +46,7 @@ const GeneratorForm = () => {
   const [prompt, setPrompt] = useState("");
   const [characters, setCharacters] = useState("");
   const [setting, setSetting] = useState("");
+  const [beats, setBeats] = useState<string[]>([]);
   const [isAdvanced, setIsAdvanced] = useState(false);
   
   const [output, setOutput] = useState("");
@@ -102,6 +102,7 @@ const GeneratorForm = () => {
       if (isAdvanced) {
         if (characters) fullPrompt = `CHARACTERS: ${characters}\n\n${fullPrompt}`;
         if (setting) fullPrompt = `SETTING: ${setting}\n\n${fullPrompt}`;
+        if (beats.length > 0) fullPrompt = `STORY BEATS:\n${beats.map((b, i) => `${i+1}. ${b}`).join('\n')}\n\n${fullPrompt}`;
       }
       fullPrompt += `\n\nTarget length: ${length[0]} words.`;
 
@@ -113,7 +114,7 @@ const GeneratorForm = () => {
       );
       
       if (!result || !result.text) {
-        throw new Error("The AI returned an empty response. Please try again.");
+        throw new Error("The AI returned an empty response.");
       }
 
       setOutput(result.text);
@@ -150,7 +151,7 @@ const GeneratorForm = () => {
             <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest flex items-center gap-1.5">
               <ShieldCheck className="w-3 h-3 text-green-500" /> System Status
             </span>
-            <span className="text-[10px] font-mono text-violet-400">v4.5-ADVANCED</span>
+            <span className="text-[10px] font-mono text-violet-400">v4.8-FORGE</span>
           </div>
           <div className="grid grid-cols-2 gap-2">
             <div className="px-2 py-1.5 rounded-lg bg-black/40 border border-white/5 flex flex-col">
@@ -215,49 +216,35 @@ const GeneratorForm = () => {
                 Gemini
               </button>
             </div>
-
-            {provider === "openrouter" && (
-              <div className="space-y-2 animate-in fade-in slide-in-from-top-1">
-                <Select value={selectedModel} onValueChange={setSelectedModel}>
-                  <SelectTrigger className="bg-black/40 border-white/10 h-10 text-xs">
-                    <SelectValue placeholder="Select a model" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-zinc-900 border-white/10 text-zinc-300">
-                    {MODELS.map(m => (
-                      <SelectItem key={m.id} value={m.id} className="text-xs focus:bg-violet-600 focus:text-white">
-                        {m.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            )}
           </div>
 
           {isAdvanced && (
-            <div className="space-y-4 animate-in fade-in slide-in-from-top-2 duration-500">
-              <div className="space-y-2">
-                <Label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest flex items-center gap-1.5">
-                  <Users className="w-3 h-3" /> Characters
-                </Label>
-                <Input 
-                  placeholder="e.g. Jax, a cynical cyborg..." 
-                  className="bg-black/40 border-white/10 h-9 text-xs"
-                  value={characters}
-                  onChange={(e) => setCharacters(e.target.value)}
-                />
+            <div className="space-y-6 animate-in fade-in slide-in-from-top-2 duration-500">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest flex items-center gap-1.5">
+                    <Users className="w-3 h-3" /> Characters
+                  </Label>
+                  <Input 
+                    placeholder="Jax, a cyborg..." 
+                    className="bg-black/40 border-white/10 h-9 text-xs"
+                    value={characters}
+                    onChange={(e) => setCharacters(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest flex items-center gap-1.5">
+                    <MapPin className="w-3 h-3" /> Setting
+                  </Label>
+                  <Input 
+                    placeholder="Neo-Tokyo..." 
+                    className="bg-black/40 border-white/10 h-9 text-xs"
+                    value={setting}
+                    onChange={(e) => setSetting(e.target.value)}
+                  />
+                </div>
               </div>
-              <div className="space-y-2">
-                <Label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest flex items-center gap-1.5">
-                  <MapPin className="w-3 h-3" /> Setting
-                </Label>
-                <Input 
-                  placeholder="e.g. Neo-Tokyo, 2099..." 
-                  className="bg-black/40 border-white/10 h-9 text-xs"
-                  value={setting}
-                  onChange={(e) => setSetting(e.target.value)}
-                />
-              </div>
+              <StoryBeats beats={beats} onChange={setBeats} />
             </div>
           )}
 
@@ -310,26 +297,6 @@ const GeneratorForm = () => {
               </span>
             )}
           </Button>
-        </div>
-
-        <div className="p-4 rounded-xl border border-white/5 bg-white/[0.01] space-y-4">
-          <div className="flex items-center gap-2 text-muted-foreground">
-            <History className="w-4 h-4" />
-            <span className="font-bold uppercase text-[10px] tracking-widest">History</span>
-          </div>
-          <div className="space-y-2 max-h-[200px] overflow-y-auto pr-2 custom-scrollbar">
-            {history.length > 0 ? history.map((item) => (
-              <button 
-                key={item.id}
-                onClick={() => { setPrompt(item.prompt); setOutput(item.content); }}
-                className="w-full text-left p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors text-xs truncate border border-white/5 group"
-              >
-                <span className="text-zinc-500 group-hover:text-violet-400 transition-colors">{item.prompt}</span>
-              </button>
-            )) : (
-              <p className="text-[10px] text-zinc-600 text-center py-4">No history yet</p>
-            )}
-          </div>
         </div>
       </div>
 
