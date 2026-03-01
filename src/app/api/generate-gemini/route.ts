@@ -15,10 +15,11 @@ export async function POST(req: Request) {
 
     const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
     
-    // 'gemini-1.5-flash' is the current recommended model for the free tier
-    const model = genAI.getGenerativeModel({ 
-      model: "gemini-1.5-flash",
-    });
+    // Explicitly using 'v1' instead of the default 'v1beta' to ensure model availability
+    const model = genAI.getGenerativeModel(
+      { model: "gemini-1.5-flash" },
+      { apiVersion: "v1" }
+    );
 
     const result = await model.generateContent({
       contents: [{ role: "user", parts: [{ text: prompt }] }],
@@ -41,6 +42,8 @@ export async function POST(req: Request) {
     console.error("[gemini-api] Error:", error);
     
     const errorMessage = error.message || "Unknown Gemini Error";
-    return NextResponse.json({ error: `Gemini API Error: ${errorMessage}. Ensure your API key is valid and has access to Gemini 1.5 Flash.` }, { status: 500 });
+    return NextResponse.json({ 
+      error: `Gemini API Error: ${errorMessage}. If this persists, ensure your API key has 'Gemini 1.5 Flash' enabled in the Google AI Studio console.` 
+    }, { status: 500 });
   }
 }
