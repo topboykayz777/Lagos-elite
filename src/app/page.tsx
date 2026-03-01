@@ -1,8 +1,11 @@
 import Navbar from "@/components/real-estate/Navbar";
 import Hero from "@/components/real-estate/Hero";
+import Partners from "@/components/real-estate/Partners";
 import FeaturedProperties from "@/components/real-estate/FeaturedProperties";
 import About from "@/components/real-estate/About";
 import Services from "@/components/real-estate/Services";
+import Testimonials from "@/components/real-estate/Testimonials";
+import FAQ from "@/components/real-estate/FAQ";
 import Footer from "@/components/real-estate/Footer";
 import WhatsAppCTA from "@/components/real-estate/WhatsAppCTA";
 import Link from 'next/link';
@@ -14,9 +17,12 @@ export default function Home() {
       
       <main>
         <Hero />
+        <Partners />
         <FeaturedProperties />
         <About />
         <Services />
+        <Testimonials />
+        <FAQ />
         
         {/* CTA Section */}
         <section className="py-20 bg-[#002147] relative overflow-hidden">
