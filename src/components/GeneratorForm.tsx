@@ -17,10 +17,12 @@ import {
   Flame,
   Ghost,
   Skull,
-  AlertCircle
+  AlertCircle,
+  Cpu
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const PRESETS = [
   { name: "Dark Fantasy", icon: Skull, prompt: "Write a gritty, dark fantasy scene involving " },
@@ -37,7 +39,7 @@ const GeneratorForm = () => {
   const [copied, setCopied] = useState(false);
   const [history, setHistory] = useState<any[]>([]);
   const [user, setUser] = useState<any>(null);
-  const [isPremium, setIsPremium] = useState(false);
+  const [provider, setProvider] = useState("openrouter");
   const [authError, setAuthError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -47,7 +49,6 @@ const GeneratorForm = () => {
         if (!session) {
           const { data, error } = await supabase.auth.signInAnonymously();
           if (error) {
-            console.warn("Anonymous sign-in failed. History will not be saved.", error.message);
             setAuthError("Database history disabled: " + error.message);
           } else {
             setUser(data.user);
@@ -56,8 +57,7 @@ const GeneratorForm = () => {
           setUser(session.user);
         }
       } catch (err: any) {
-        console.error("Auth initialization error:", err);
-        setAuthError("Database connection issue. Stories won't be saved to library.");
+        setAuthError("Database connection issue.");
       }
     };
     initAuth();
@@ -66,22 +66,8 @@ const GeneratorForm = () => {
   useEffect(() => {
     if (user) {
       fetchHistory();
-      checkPremiumStatus();
     }
   }, [user]);
-
-  const checkPremiumStatus = async () => {
-    try {
-      const { data } = await supabase
-        .from('profiles')
-        .select('subscription_status')
-        .eq('id', user.id)
-        .single();
-      if (data) setIsPremium(data.subscription_status === 'active');
-    } catch (err) {
-      setIsPremium(false);
-    }
-  };
 
   const fetchHistory = async () => {
     try {
@@ -106,7 +92,8 @@ const GeneratorForm = () => {
     setOutput("");
     
     try {
-      const res = await fetch('/api/generate', {
+      const endpoint = provider === "openrouter" ? "/api/generate" : "/api/generate-gemini";
+      const res = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ prompt, creativity: creativity[0] })
@@ -121,7 +108,6 @@ const GeneratorForm = () => {
       setOutput(data.text);
       toast.success("Story generated!");
 
-      // Try to save to database, but don't fail if it doesn't work
       if (user) {
         supabase.from('stories').insert({
           user_id: user.id,
@@ -134,7 +120,7 @@ const GeneratorForm = () => {
       
     } catch (error: any) {
       console.error("Generation Error:", error);
-      toast.error(error.message || "Generation failed. Check your API key.");
+      toast.error(error.message || "Generation failed.");
     } finally {
       setIsGenerating(false);
     }
@@ -151,6 +137,18 @@ const GeneratorForm = () => {
         )}
 
         <div className="p-6 rounded-2xl border border-white/5 bg-white/[0.02] space-y-6">
+          <div className="space-y-3">
+            <Label className="text-sm font-medium text-zinc-400 flex items-center gap-2">
+              <Cpu className="w-4 h-4" /> AI Provider
+            </Label>
+            <Tabs defaultValue="openrouter" onValueChange={setProvider} className="w-full">
+              <TabsList className="grid w-full grid-cols-2 bg-black/40 border border-white/5">
+                <TabsTrigger value="openrouter" className="text-[10px] uppercase font-bold tracking-widest data-[state=active]:bg-violet-600">OpenRouter</TabsTrigger>
+                <TabsTrigger value="gemini" className="text-[10px] uppercase font-bold tracking-widest data-[state=active]:bg-violet-600">Gemini</TabsTrigger>
+              </TabsList>
+            </Tabs>
+          </div>
+
           <div className="space-y-3">
             <Label className="text-sm font-medium text-zinc-400">Style Presets</Label>
             <div className="grid grid-cols-2 gap-2">
@@ -239,7 +237,7 @@ const GeneratorForm = () => {
             <div className="flex items-center gap-4">
               <span className="text-sm font-medium text-zinc-400">Output</span>
               <div className="h-4 w-[1px] bg-white/10" />
-              <span className="text-xs text-zinc-500">Unbound-v3-Large</span>
+              <span className="text-xs text-zinc-500">{provider === "openrouter" ? "Unbound-v3-Large" : "Gemini-1.5-Flash"}</span>
             </div>
             <div className="flex items-center gap-2">
               {output && (
