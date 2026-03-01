@@ -6,13 +6,13 @@ export async function POST(req: Request) {
   try {
     const { prompt, creativity } = await req.json();
 
-    if (!OPENROUTER_API_KEY || OPENROUTER_API_KEY === "undefined") {
+    if (!OPENROUTER_API_KEY || OPENROUTER_API_KEY === "undefined" || OPENROUTER_API_KEY.length < 10) {
       return NextResponse.json({ 
-        error: "OPENROUTER_API_KEY is missing. Please add it to the 'Secrets' tab and click RESTART." 
+        error: "Invalid or missing OPENROUTER_API_KEY. Please check your Secrets tab." 
       }, { status: 500 });
     }
 
-    // Switching to Gemma 2 9B Free as it currently has more stable endpoints than Llama 3.1
+    // Using Llama 3.2 3B Free - currently the most reliable free endpoint on OpenRouter
     const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -22,7 +22,7 @@ export async function POST(req: Request) {
         "X-Title": "Unbound AI Writer",
       },
       body: JSON.stringify({
-        "model": "google/gemma-2-9b-it:free",
+        "model": "meta-llama/llama-3.2-3b-instruct:free",
         "messages": [
           {
             "role": "system",
@@ -41,9 +41,10 @@ export async function POST(req: Request) {
     const data = await response.json();
     
     if (!response.ok) {
-      console.error("[openrouter] Error response:", data);
-      const msg = data.error?.message || "OpenRouter free tier is currently unavailable. Please try the Gemini engine.";
-      return NextResponse.json({ error: msg }, { status: response.status });
+      console.error("[openrouter] API Error:", data);
+      return NextResponse.json({ 
+        error: data.error?.message || "OpenRouter endpoint is currently congested. Try the Gemini engine." 
+      }, { status: response.status });
     }
 
     const text = data.choices?.[0]?.message?.content;
@@ -54,6 +55,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ text });
 
   } catch (error: any) {
-    return NextResponse.json({ error: "Connection failed. Please try again." }, { status: 500 });
+    console.error("[openrouter] Fetch Error:", error);
+    return NextResponse.json({ error: "Network error connecting to OpenRouter." }, { status: 500 });
   }
 }
