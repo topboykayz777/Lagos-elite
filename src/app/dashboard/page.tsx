@@ -18,14 +18,15 @@ import {
   Key,
   Download,
   TrendingUp,
-  ShieldAlert
+  ShieldAlert,
+  Sparkles
 } from 'lucide-react';
 import { toast } from 'sonner';
 import IdentityTags from '@/components/dashboard/IdentityTags';
 
 export default function DashboardPage() {
   const [profile, setProfile] = useState<any>(null);
-  const [stats, setStats] = useState({ stories: 0, premium: false, score: 842, identity: [] });
+  const [stats, setStats] = useState({ stories: 0, premium: false, score: 0, identity: [] });
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
 
@@ -49,11 +50,17 @@ export default function DashboardPage() {
           .from('stories')
           .select('*', { count: 'exact', head: true });
 
+        const isPremium = profileData?.subscription_status === 'active';
+        const storyCount = count || 0;
+        
+        // Calculate dynamic score: Base 500 + 10 per story + 500 if premium
+        const calculatedScore = 500 + (storyCount * 10) + (isPremium ? 500 : 0);
+
         setProfile(user);
         setStats({
-          stories: count || 0,
-          premium: profileData?.subscription_status === 'active',
-          score: profileData?.sovereign_score || 842,
+          stories: storyCount,
+          premium: isPremium,
+          score: profileData?.sovereign_score || calculatedScore,
           identity: profileData?.identity || ['Autonomy', 'Truth', 'Discipline']
         });
       }

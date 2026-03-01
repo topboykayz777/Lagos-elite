@@ -6,6 +6,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { Input } from '@/components/ui/input';
+import { Switch } from '@/components/ui/switch';
 import { 
   Select,
   SelectContent,
@@ -25,7 +26,10 @@ import {
   ShieldCheck,
   Users,
   MapPin,
-  Dices
+  Dices,
+  Fingerprint,
+  ChevronRight,
+  BookOpen
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
@@ -33,6 +37,8 @@ import { cn } from '@/lib/utils';
 import StylePresets from './generator/StylePresets';
 import OutputDisplay from './generator/OutputDisplay';
 import StoryBeats from './generator/StoryBeats';
+import PersonaSelector, { PERSONAS } from './generator/PersonaSelector';
+import Link from 'next/link';
 
 const MODELS = [
   { id: "auto", name: "Auto-Rotate (Recommended)" },
@@ -59,6 +65,8 @@ const GeneratorForm = () => {
   const [setting, setSetting] = useState("");
   const [beats, setBeats] = useState<string[]>([]);
   const [isAdvanced, setIsAdvanced] = useState(false);
+  const [useIdentity, setUseIdentity] = useState(true);
+  const [selectedPersona, setSelectedPersona] = useState("default");
   
   const [output, setOutput] = useState("");
   const [currentStoryId, setCurrentStoryId] = useState<string | undefined>(undefined);
@@ -67,6 +75,7 @@ const GeneratorForm = () => {
   const [length, setLength] = useState([500]);
   const [history, setHistory] = useState<any[]>([]);
   const [user, setUser] = useState<any>(null);
+  const [profile, setProfile] = useState<any>(null);
   const [provider, setProvider] = useState<"openrouter" | "gemini">("openrouter");
   const [selectedModel, setSelectedModel] = useState("auto");
   const [activeModel, setActiveModel] = useState<string>("");
@@ -86,15 +95,23 @@ const GeneratorForm = () => {
   }, []);
 
   useEffect(() => {
-    if (user) fetchHistory();
+    if (user) {
+      fetchHistory();
+      fetchProfile();
+    }
   }, [user]);
+
+  const fetchProfile = async () => {
+    const { data } = await supabase.from('profiles').select('*').eq('id', user.id).single();
+    if (data) setProfile(data);
+  };
 
   const fetchHistory = async () => {
     const { data } = await supabase
       .from('stories')
       .select('*')
       .order('created_at', { ascending: false })
-      .limit(10);
+      .limit(5);
     if (data) setHistory(data);
   };
 
@@ -117,12 +134,21 @@ const GeneratorForm = () => {
     
     try {
       let fullPrompt = finalPrompt;
+      
+      // Add Identity Context
+      if (useIdentity && profile?.identity?.length > 0) {
+        fullPrompt = `USER IDENTITY TRAITS: ${profile.identity.join(', ')}\n(Incorporate these themes/traits subtly into the story style or character motivations)\n\n${fullPrompt}`;
+      }
+
       if (isAdvanced) {
         if (characters) fullPrompt = `CHARACTERS: ${characters}\n\n${fullPrompt}`;
         if (setting) fullPrompt = `SETTING: ${setting}\n\n${fullPrompt}`;
         if (beats.length > 0) fullPrompt = `STORY BEATS:\n${beats.map((b, i) => `${i+1}. ${b}`).join('\n')}\n\n${fullPrompt}`;
       }
+      
       fullPrompt += `\n\nTarget length: ${length[0]} words.`;
+
+      const persona = PERSONAS.find(p => p.id === selectedPersona);
 
       const response = await fetch('/api/ai', {
         method: 'POST',
@@ -131,7 +157,8 @@ const GeneratorForm = () => {
           prompt: fullPrompt,
           creativity: creativity[0],
           provider: currentProvider,
-          specificModel: selectedModel === "auto" ? undefined : selectedModel
+          specificModel: selectedModel === "auto" ? undefined : selectedModel,
+          systemPrompt: persona?.system
         })
       });
 
@@ -155,6 +182,8 @@ const GeneratorForm = () => {
         if (data) {
           setCurrentStoryId(data.id);
           fetchHistory();
+          // Update score on generation
+          await supabase.rpc('increment_sovereign_score', { user_id: user.id, amount: 5 });
         }
       }
     } catch (error: any) {
@@ -174,13 +203,14 @@ const GeneratorForm = () => {
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+      {/* Left Sidebar: Controls */}
       <div className="lg:col-span-4 space-y-6">
         <div className="p-4 rounded-2xl bg-zinc-900/50 border border-white/5 space-y-3">
           <div className="flex items-center justify-between">
             <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest flex items-center gap-1.5">
               <ShieldCheck className="w-3 h-3 text-green-500" /> System Status
             </span>
-            <span className="text-[10px] font-mono text-violet-400">v5.2-STABLE</span>
+            <span className="text-[10px] font-mono text-violet-400">v5.5-NEURAL</span>
           </div>
           <div className="grid grid-cols-2 gap-2">
             <div className="px-2 py-1.5 rounded-lg bg-black/40 border border-white/5 flex flex-col">
@@ -245,23 +275,18 @@ const GeneratorForm = () => {
                 Gemini
               </button>
             </div>
+          </div>
 
-            {provider === "openrouter" && (
-              <div className="space-y-2 animate-in fade-in slide-in-from-top-1">
-                <Select value={selectedModel} onValueChange={setSelectedModel}>
-                  <SelectTrigger className="bg-black/40 border-white/10 h-10 text-xs">
-                    <SelectValue placeholder="Select a model" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-zinc-900 border-white/10 text-zinc-300">
-                    {MODELS.map(m => (
-                      <SelectItem key={m.id} value={m.id} className="text-xs focus:bg-violet-600 focus:text-white">
-                        {m.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+          <PersonaSelector selectedId={selectedPersona} onSelect={setSelectedPersona} />
+
+          <div className="p-4 rounded-xl bg-violet-500/5 border border-violet-500/10 flex items-center justify-between">
+            <div className="space-y-0.5">
+              <div className="text-[10px] font-bold text-violet-400 uppercase tracking-widest flex items-center gap-1.5">
+                <Fingerprint className="w-3 h-3" /> Neural Identity Link
               </div>
-            )}
+              <p className="text-[9px] text-zinc-500">Inject your traits into the AI.</p>
+            </div>
+            <Switch checked={useIdentity} onCheckedChange={setUseIdentity} />
           </div>
 
           {isAdvanced && (
@@ -352,8 +377,38 @@ const GeneratorForm = () => {
             )}
           </Button>
         </div>
+
+        {/* Recent Stories Quick Access */}
+        {history.length > 0 && (
+          <div className="space-y-3 animate-in fade-in slide-in-from-bottom-4">
+            <div className="flex items-center justify-between px-2">
+              <h4 className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest flex items-center gap-1.5">
+                <History className="w-3 h-3" /> Recent Archives
+              </h4>
+              <Link href="/library" className="text-[10px] text-violet-400 hover:underline">View All</Link>
+            </div>
+            <div className="space-y-2">
+              {history.map((story) => (
+                <Link key={story.id} href={`/library/${story.id}`}>
+                  <div className="p-3 rounded-xl bg-white/[0.02] border border-white/5 hover:border-violet-500/30 hover:bg-violet-500/5 transition-all group flex items-center justify-between">
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[11px] font-bold text-zinc-300 truncate group-hover:text-violet-300 transition-colors">
+                        {story.prompt}
+                      </p>
+                      <p className="text-[9px] text-zinc-600">
+                        {new Date(story.created_at).toLocaleDateString()}
+                      </p>
+                    </div>
+                    <ChevronRight className="w-3 h-3 text-zinc-700 group-hover:text-violet-500 transition-colors" />
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
+      {/* Right Column: Output */}
       <div className="lg:col-span-8">
         <OutputDisplay 
           output={output}
