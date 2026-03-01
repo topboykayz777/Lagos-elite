@@ -12,7 +12,7 @@ const AGENTS = [
   {
     name: "Sarah Adeyemi",
     role: "Luxury Listing Specialist",
-    image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=1974&auto=format&fit=crop"
+    image: "https://images.unsplash.com/photo-1567532939604-b6b5b0db2604?q=80&w=1974&auto=format&fit=crop"
   },
   {
     name: "Chidi Okafor",
@@ -34,11 +34,11 @@ const Agents = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
           {AGENTS.map((agent) => (
             <div key={agent.name} className="group">
-              <div className="relative h-[450px] overflow-hidden mb-6">
+              <div className="relative h-[500px] overflow-hidden mb-6">
                 <img 
                   src={agent.image} 
                   alt={agent.name} 
-                  className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500"
+                  className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700"
                 />
                 <div className="absolute bottom-0 left-0 right-0 p-6 translate-y-full group-hover:translate-y-0 transition-transform duration-500 bg-[#002147]/90 backdrop-blur-sm flex justify-center gap-6">
                   <Phone className="w-5 h-5 text-[#C5A059] cursor-pointer hover:scale-110 transition-transform" />
