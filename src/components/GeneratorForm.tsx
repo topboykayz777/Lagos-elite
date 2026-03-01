@@ -9,14 +9,8 @@ import {
   Wand2, 
   Settings2, 
   History, 
-  Trash2,
   Sparkles,
-  Copy,
-  Check,
   Zap,
-  Flame,
-  Ghost,
-  Skull,
   AlertCircle,
   Cpu,
   Bug
@@ -24,20 +18,14 @@ import {
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
-
-const PRESETS = [
-  { name: "Dark Fantasy", icon: Skull, prompt: "Write a gritty, dark fantasy scene involving " },
-  { name: "Cyberpunk", icon: Zap, prompt: "Write a neon-soaked cyberpunk story about " },
-  { name: "Horror", icon: Ghost, prompt: "Write a visceral, psychological horror story about " },
-  { name: "Erotica", icon: Flame, prompt: "Write an intense, descriptive romantic scene between " },
-];
+import StylePresets from './generator/StylePresets';
+import OutputDisplay from './generator/OutputDisplay';
 
 const GeneratorForm = () => {
   const [prompt, setPrompt] = useState("");
   const [output, setOutput] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [creativity, setCreativity] = useState([0.8]);
-  const [copied, setCopied] = useState(false);
   const [history, setHistory] = useState<any[]>([]);
   const [user, setUser] = useState<any>(null);
   const [provider, setProvider] = useState<"openrouter" | "gemini">("openrouter");
@@ -83,31 +71,26 @@ const GeneratorForm = () => {
     }
   };
 
-  const handleGenerate = async () => {
-    if (!prompt.trim()) {
+  const handleGenerate = async (customPrompt?: string) => {
+    const finalPrompt = customPrompt || prompt;
+    if (!finalPrompt.trim()) {
       toast.error("Please enter a prompt first.");
       return;
     }
 
     const endpoint = provider === "openrouter" ? "/api/generate" : "/api/generate-gemini";
-    console.log(`[Generator] 🚀 CALLING ENDPOINT: ${endpoint} (Provider: ${provider})`);
-
     setIsGenerating(true);
-    setOutput("");
     
     try {
       const res = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt, creativity: creativity[0] })
+        body: JSON.stringify({ prompt: finalPrompt, creativity: creativity[0] })
       });
       
       const data = await res.json();
       
-      if (!res.ok) {
-        console.error(`[Generator] ❌ SERVER ERROR from ${endpoint}:`, data);
-        throw new Error(data.error || `Server error (${res.status})`);
-      }
+      if (!res.ok) throw new Error(data.error || `Server error (${res.status})`);
       
       setOutput(data.text);
       toast.success("Story generated!");
@@ -115,7 +98,7 @@ const GeneratorForm = () => {
       if (user) {
         supabase.from('stories').insert({
           user_id: user.id,
-          prompt: prompt,
+          prompt: finalPrompt.substring(0, 100),
           content: data.text
         }).then(({ error }) => {
           if (!error) fetchHistory();
@@ -123,11 +106,15 @@ const GeneratorForm = () => {
       }
       
     } catch (error: any) {
-      console.error("[Generator] ❌ FETCH FAILED:", error);
       toast.error(error.message || "Generation failed.");
     } finally {
       setIsGenerating(false);
     }
+  };
+
+  const handleRefine = async (instruction: string) => {
+    const refinementPrompt = `Original Story: ${output}\n\nInstruction: ${instruction}\n\nRewrite or continue the story based on the instruction above.`;
+    handleGenerate(refinementPrompt);
   };
 
   return (
@@ -138,10 +125,6 @@ const GeneratorForm = () => {
           <div className="flex items-center gap-2">
             <Bug className="w-3 h-3" /> 
             <span>ACTIVE PROVIDER: <span className="text-violet-400 font-bold uppercase">{provider}</span></span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Zap className="w-3 h-3" /> 
-            <span>ENDPOINT: <span className="text-zinc-300">{provider === "openrouter" ? "/api/generate" : "/api/generate-gemini"}</span></span>
           </div>
         </div>
 
@@ -179,21 +162,7 @@ const GeneratorForm = () => {
             </div>
           </div>
 
-          <div className="space-y-3">
-            <Label className="text-sm font-medium text-zinc-400">Style Presets</Label>
-            <div className="grid grid-cols-2 gap-2">
-              {PRESETS.map((p) => (
-                <button
-                  key={p.name}
-                  onClick={() => setPrompt(p.prompt)}
-                  className="flex items-center gap-2 p-2 rounded-lg bg-white/5 border border-white/5 hover:bg-violet-500/10 hover:border-violet-500/30 transition-all text-[10px] font-bold uppercase tracking-wider text-zinc-400 hover:text-violet-400"
-                >
-                  <p.icon className="w-3 h-3" />
-                  {p.name}
-                </button>
-              ))}
-            </div>
-          </div>
+          <StylePresets onSelect={(p) => setPrompt(p)} />
 
           <div className="space-y-2">
             <Label className="text-sm font-medium text-zinc-400">Story Prompt</Label>
@@ -222,7 +191,7 @@ const GeneratorForm = () => {
           </div>
 
           <Button 
-            onClick={handleGenerate}
+            onClick={() => handleGenerate()}
             disabled={isGenerating}
             className="w-full bg-violet-600 hover:bg-violet-700 text-white h-12 rounded-xl font-bold text-lg shadow-lg shadow-violet-600/20"
           >
@@ -262,50 +231,13 @@ const GeneratorForm = () => {
       </div>
 
       <div className="lg:col-span-8">
-        <div className="h-full min-h-[600px] rounded-2xl border border-white/5 bg-white/[0.02] flex flex-col">
-          <div className="p-4 border-b border-white/5 flex items-center justify-between bg-white/[0.01]">
-            <div className="flex items-center gap-4">
-              <span className="text-sm font-medium text-zinc-400">Output</span>
-              <div className="h-4 w-[1px] bg-white/10" />
-              <span className="text-xs text-zinc-500">{provider === "openrouter" ? "Unbound-v3-Large" : "Gemini-1.5-Flash"}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              {output && (
-                <Button variant="ghost" size="icon" onClick={() => {
-                  navigator.clipboard.writeText(output);
-                  setCopied(true);
-                  toast.success("Copied!");
-                  setTimeout(() => setCopied(false), 2000);
-                }} className="h-8 w-8 text-zinc-400 hover:text-white">
-                  {copied ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
-                </Button>
-              )}
-              <Button variant="ghost" size="icon" onClick={() => setOutput("")} className="h-8 w-8 text-zinc-400 hover:text-red-400">
-                <Trash2 className="w-4 h-4" />
-              </Button>
-            </div>
-          </div>
-          
-          <div className="flex-1 p-8 font-serif text-lg leading-relaxed text-zinc-300 overflow-y-auto whitespace-pre-wrap">
-            {isGenerating ? (
-              <div className="space-y-4 animate-pulse">
-                <div className="h-4 bg-white/5 rounded w-3/4" />
-                <div className="h-4 bg-white/5 rounded w-full" />
-                <div className="h-4 bg-white/5 rounded w-5/6" />
-                <div className="h-4 bg-white/5 rounded w-2/3" />
-              </div>
-            ) : output ? (
-              <div className="prose prose-invert max-w-none">
-                {output}
-              </div>
-            ) : (
-              <div className="flex flex-col items-center justify-center h-full text-center space-y-4 opacity-40">
-                <Sparkles className="w-12 h-12 text-violet-500" />
-                <p className="text-zinc-500 italic max-w-xs">Your generated story will appear here. No filters, no limits.</p>
-              </div>
-            )}
-          </div>
-        </div>
+        <OutputDisplay 
+          output={output}
+          isGenerating={isGenerating}
+          provider={provider}
+          onClear={() => setOutput("")}
+          onRefine={handleRefine}
+        />
       </div>
     </div>
   );
