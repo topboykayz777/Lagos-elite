@@ -7,90 +7,78 @@ import Link from 'next/link';
 
 const Hero = () => {
   return (
-    <section className="relative h-screen min-h-[700px] flex items-center justify-center overflow-hidden">
+    <section className="relative h-screen min-h-[750px] flex items-center overflow-hidden">
       {/* Background Image with Overlay */}
       <div 
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat scale-105"
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
         style={{ backgroundImage: "url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=2070&auto=format&fit=crop')" }}
       >
-        <div className="absolute inset-0 bg-gradient-to-r from-[#002147]/90 via-[#002147]/60 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#002147] via-[#002147]/40 to-transparent" />
       </div>
 
       <div className="container mx-auto px-6 relative z-10">
-        <div className="max-w-3xl space-y-8">
-          <div className="space-y-4">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#C5A059]/20 border border-[#C5A059]/30 text-[#C5A059] text-xs font-bold tracking-widest uppercase">
-              Premium Real Estate in Lagos
+        <div className="max-w-4xl space-y-10">
+          <div className="space-y-6">
+            <div className="inline-flex items-center gap-3 px-4 py-2 bg-[#C5A059]/10 border border-[#C5A059]/20 backdrop-blur-sm">
+              <span className="w-2 h-2 rounded-full bg-[#C5A059] animate-pulse" />
+              <span className="text-[#C5A059] text-[10px] font-bold tracking-[0.3em] uppercase">
+                The Pinnacle of Lagos Living
+              </span>
             </div>
-            <h1 className="text-5xl md:text-7xl font-bold text-white leading-[1.1] tracking-tight">
-              Find Your Dream <br />
-              <span className="text-[#C5A059]">Luxury Home</span> in Nigeria.
+            
+            <h1 className="text-6xl md:text-8xl font-bold text-white leading-[0.95] tracking-tighter">
+              Sovereign <br />
+              <span className="text-[#C5A059]">Real Estate.</span>
             </h1>
-            <p className="text-zinc-300 text-lg md:text-xl max-w-xl leading-relaxed">
-              From Ikoyi penthouses to Lekki waterfront villas, we provide exclusive access to the most prestigious properties in Lagos.
+            
+            <p className="text-zinc-300 text-lg md:text-xl max-w-xl leading-relaxed font-medium">
+              From Banana Island penthouses to Lekki waterfront villas, we provide exclusive access to the most prestigious properties in Nigeria.
             </p>
           </div>
 
-          {/* Search Bar */}
-          <div className="bg-white p-2 md:p-4 rounded-none shadow-2xl flex flex-col md:flex-row items-center gap-4 max-w-4xl">
-            <div className="flex-1 w-full flex items-center gap-3 px-4 border-b md:border-b-0 md:border-r border-zinc-100 py-2">
+          {/* Search Bar - Sharp & Modern */}
+          <div className="bg-white p-1 shadow-2xl flex flex-col md:flex-row items-center max-w-4xl">
+            <div className="flex-1 w-full flex items-center gap-4 px-6 py-4 border-b md:border-b-0 md:border-r border-zinc-100">
               <MapPin className="text-[#C5A059] w-5 h-5 shrink-0" />
               <div className="flex flex-col w-full">
-                <span className="text-[10px] uppercase font-bold text-zinc-400">Location</span>
+                <span className="text-[9px] uppercase font-bold text-zinc-400 tracking-widest">Location</span>
                 <input 
                   type="text" 
-                  placeholder="Ikoyi, Lekki, Victoria Island..." 
-                  className="text-sm font-semibold text-[#002147] focus:outline-none w-full bg-transparent"
+                  placeholder="Ikoyi, Lekki, VI..." 
+                  className="text-sm font-bold text-[#002147] focus:outline-none w-full bg-transparent placeholder:text-zinc-300"
                 />
               </div>
             </div>
             
-            <div className="flex-1 w-full flex items-center gap-3 px-4 border-b md:border-b-0 md:border-r border-zinc-100 py-2">
+            <div className="flex-1 w-full flex items-center gap-4 px-6 py-4 border-b md:border-b-0 md:border-r border-zinc-100">
               <Building2 className="text-[#C5A059] w-5 h-5 shrink-0" />
               <div className="flex flex-col w-full">
-                <span className="text-[10px] uppercase font-bold text-zinc-400">Property Type</span>
-                <select className="text-sm font-semibold text-[#002147] focus:outline-none w-full bg-transparent appearance-none">
-                  <option>Apartment</option>
-                  <option>Duplex</option>
+                <span className="text-[9px] uppercase font-bold text-zinc-400 tracking-widest">Type</span>
+                <select className="text-sm font-bold text-[#002147] focus:outline-none w-full bg-transparent appearance-none cursor-pointer">
                   <option>Penthouse</option>
+                  <option>Waterfront Villa</option>
+                  <option>Commercial</option>
                   <option>Land</option>
                 </select>
               </div>
             </div>
 
-            <div className="flex-1 w-full flex items-center gap-3 px-4 py-2">
-              <DollarSign className="text-[#C5A059] w-5 h-5 shrink-0" />
-              <div className="flex flex-col w-full">
-                <span className="text-[10px] uppercase font-bold text-zinc-400">Price Range</span>
-                <select className="text-sm font-semibold text-[#002147] focus:outline-none w-full bg-transparent appearance-none">
-                  <option>₦50M - ₦150M</option>
-                  <option>₦150M - ₦500M</option>
-                  <option>₦500M+</option>
-                </select>
-              </div>
-            </div>
-
             <Link href="/properties" className="w-full md:w-auto">
-              <Button className="w-full bg-[#002147] hover:bg-[#003366] text-white h-14 px-8 rounded-none font-bold flex items-center gap-2">
-                <Search className="w-5 h-5" /> SEARCH
+              <Button className="w-full md:w-56 bg-[#002147] hover:bg-[#003366] text-white h-16 rounded-none font-black text-xs tracking-[0.2em] flex items-center gap-3 transition-all">
+                <Search className="w-4 h-4" /> DISCOVER
               </Button>
             </Link>
           </div>
 
-          <div className="flex items-center gap-8 pt-4">
+          <div className="flex items-center gap-12 pt-6">
             <div className="flex flex-col">
-              <span className="text-3xl font-bold text-white">500+</span>
-              <span className="text-xs text-zinc-400 uppercase tracking-wider">Properties Sold</span>
+              <span className="text-4xl font-bold text-white tracking-tighter">₦10B+</span>
+              <span className="text-[9px] text-zinc-400 uppercase font-bold tracking-[0.2em]">Sales Volume</span>
             </div>
-            <div className="w-[1px] h-10 bg-white/10" />
+            <div className="w-[1px] h-12 bg-white/10" />
             <div className="flex flex-col">
-              <span className="text-3xl font-bold text-white">120+</span>
-              <span className="text-xs text-zinc-400 uppercase tracking-wider">Luxury Listings</span>
-            </div>
-            <div className="w-[1px] h-10 bg-white/10" />
-            <div className="flex flex-col">
-              <span className="text-3xl font-bold text-white">15+</span>
-              <span className="text-xs text-zinc-400 uppercase tracking-wider">Years Experience</span>
+              <span className="text-4xl font-bold text-white tracking-tighter">120+</span>
+              <span className="text-[9px] text-zinc-400 uppercase font-bold tracking-[0.2em]">Elite Listings</span>
             </div>
           </div>
         </div>
