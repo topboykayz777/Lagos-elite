@@ -6,6 +6,7 @@ import { Search, MapPin, Building2 } from 'lucide-react';
 import Link from 'next/link';
 
 const LeafAnimation = () => {
+  const [mounted, setMounted] = useState(false);
   const [leaves, setLeaves] = useState<{ left: string; duration: string; delay: string; size: string }[]>([]);
 
   useEffect(() => {
@@ -17,7 +18,11 @@ const LeafAnimation = () => {
       size: `${10 + Math.random() * 20}px`
     }));
     setLeaves(newLeaves);
+    setMounted(true);
   }, []);
+
+  // Return null during SSR to prevent hydration mismatch
+  if (!mounted) return null;
 
   return (
     <div className="absolute inset-0 pointer-events-none overflow-hidden z-10">
