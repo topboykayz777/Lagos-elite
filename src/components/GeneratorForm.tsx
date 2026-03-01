@@ -9,31 +9,41 @@ import {
   Wand2, 
   Settings2, 
   History, 
-  Save, 
   Trash2,
-  ChevronRight,
   Sparkles,
   Copy,
-  Check
+  Check,
+  Zap,
+  Flame,
+  Ghost,
+  Skull
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/integrations/supabase/client';
+import { cn } from '@/lib/utils';
+
+const PRESETS = [
+  { name: "Dark Fantasy", icon: Skull, prompt: "Write a gritty, dark fantasy scene involving " },
+  { name: "Cyberpunk", icon: Zap, prompt: "Write a neon-soaked cyberpunk story about " },
+  { name: "Horror", icon: Ghost, prompt: "Write a visceral, psychological horror story about " },
+  { name: "Erotica", icon: Flame, prompt: "Write an intense, descriptive romantic scene between " },
+];
 
 const GeneratorForm = () => {
   const [prompt, setPrompt] = useState("");
   const [output, setOutput] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
-  const [creativity, setCreativity] = useState([0.7]);
-  const [length, setLength] = useState([500]);
+  const [creativity, setCreativity] = useState([0.8]);
   const [copied, setCopied] = useState(false);
   const [history, setHistory] = useState<any[]>([]);
   const [user, setUser] = useState<any>(null);
+  const [isPremium, setIsPremium] = useState(false);
 
   useEffect(() => {
     const initAuth = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
-        const { data, error } = await supabase.auth.signInAnonymously();
+        const { data } = await supabase.auth.signInAnonymously();
         if (data.user) setUser(data.user);
       } else {
         setUser(session.user);
@@ -43,18 +53,34 @@ const GeneratorForm = () => {
   }, []);
 
   useEffect(() => {
-    if (user) fetchHistory();
+    if (user) {
+      fetchHistory();
+      checkPremiumStatus();
+    }
   }, [user]);
+
+  const checkPremiumStatus = async () => {
+    const { data } = await supabase
+      .from('profiles')
+      .select('subscription_status')
+      .eq('id', user.id)
+      .single();
+    
+    setIsPremium(data?.subscription_status === 'active');
+  };
 
   const fetchHistory = async () => {
     const { data } = await supabase
       .from('stories')
       .select('*')
-      .order('created_at', { ascending: false });
+      .order('created_at', { ascending: false })
+      .limit(10);
     if (data) setHistory(data);
   };
 
   const checkRateLimit = async () => {
+    if (isPremium) return true;
+
     const today = new Date().toISOString().split('T')[0];
     const { count } = await supabase
       .from('stories')
@@ -91,7 +117,6 @@ const GeneratorForm = () => {
       
       setOutput(data.text);
       
-      // Save to history
       if (user) {
         await supabase.from('stories').insert({
           user_id: user.id,
@@ -109,22 +134,35 @@ const GeneratorForm = () => {
     }
   };
 
-  const copyToClipboard = () => {
-    navigator.clipboard.writeText(output);
-    setCopied(true);
-    toast.success("Copied to clipboard!");
-    setTimeout(() => setCopied(false), 2000);
+  const applyPreset = (presetPrompt: string) => {
+    setPrompt(presetPrompt);
   };
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
       <div className="lg:col-span-4 space-y-6">
         <div className="p-6 rounded-2xl border border-white/5 bg-white/[0.02] space-y-6">
+          <div className="space-y-3">
+            <Label className="text-sm font-medium text-zinc-400">Style Presets</Label>
+            <div className="grid grid-cols-2 gap-2">
+              {PRESETS.map((p) => (
+                <button
+                  key={p.name}
+                  onClick={() => applyPreset(p.prompt)}
+                  className="flex items-center gap-2 p-2 rounded-lg bg-white/5 border border-white/5 hover:bg-violet-500/10 hover:border-violet-500/30 transition-all text-[10px] font-bold uppercase tracking-wider text-zinc-400 hover:text-violet-400"
+                >
+                  <p.icon className="w-3 h-3" />
+                  {p.name}
+                </button>
+              ))}
+            </div>
+          </div>
+
           <div className="space-y-2">
             <Label className="text-sm font-medium text-zinc-400">Story Prompt</Label>
             <Textarea 
               placeholder="Describe your scene, characters, or plot twist..."
-              className="min-h-[200px] bg-black/40 border-white/10 focus:border-violet-500/50 transition-all resize-none text-base"
+              className="min-h-[180px] bg-black/40 border-white/10 focus:border-violet-500/50 transition-all resize-none text-base"
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
             />
@@ -133,7 +171,7 @@ const GeneratorForm = () => {
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <Label className="text-sm font-medium text-zinc-400 flex items-center gap-2">
-                <Settings2 className="w-4 h-4" /> Creativity
+                <Settings2 className="w-4 h-4" /> Temperature
               </Label>
               <span className="text-xs font-mono text-violet-400">{creativity[0]}</span>
             </div>
@@ -170,7 +208,7 @@ const GeneratorForm = () => {
               <span>Recent History</span>
             </div>
           </div>
-          <div className="space-y-2 max-h-[300px] overflow-y-auto pr-2">
+          <div className="space-y-2 max-h-[200px] overflow-y-auto pr-2 custom-scrollbar">
             {history.map((item) => (
               <button 
                 key={item.id}
@@ -194,7 +232,12 @@ const GeneratorForm = () => {
             </div>
             <div className="flex items-center gap-2">
               {output && (
-                <Button variant="ghost" size="icon" onClick={copyToClipboard} className="h-8 w-8 text-zinc-400 hover:text-white">
+                <Button variant="ghost" size="icon" onClick={() => {
+                  navigator.clipboard.writeText(output);
+                  setCopied(true);
+                  toast.success("Copied!");
+                  setTimeout(() => setCopied(false), 2000);
+                }} className="h-8 w-8 text-zinc-400 hover:text-white">
                   {copied ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
                 </Button>
               )}
@@ -217,8 +260,9 @@ const GeneratorForm = () => {
                 {output}
               </div>
             ) : (
-              <div className="prose prose-invert max-w-none">
-                <p className="text-zinc-500 italic">Your generated story will appear here...</p>
+              <div className="flex flex-col items-center justify-center h-full text-center space-y-4 opacity-40">
+                <Sparkles className="w-12 h-12 text-violet-500" />
+                <p className="text-zinc-500 italic max-w-xs">Your generated story will appear here. No filters, no limits.</p>
               </div>
             )}
           </div>
