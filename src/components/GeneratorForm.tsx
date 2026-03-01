@@ -18,7 +18,8 @@ import {
   Ghost,
   Skull,
   AlertCircle,
-  Cpu
+  Cpu,
+  Bug
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
@@ -88,11 +89,13 @@ const GeneratorForm = () => {
       return;
     }
 
+    const endpoint = provider === "openrouter" ? "/api/generate" : "/api/generate-gemini";
+    console.log(`[Generator] Starting generation with provider: ${provider} at endpoint: ${endpoint}`);
+
     setIsGenerating(true);
     setOutput("");
     
     try {
-      const endpoint = provider === "openrouter" ? "/api/generate" : "/api/generate-gemini";
       const res = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -102,6 +105,7 @@ const GeneratorForm = () => {
       const data = await res.json();
       
       if (!res.ok) {
+        console.error(`[Generator] Server returned error:`, data);
         throw new Error(data.error || "Generation failed");
       }
       
@@ -119,7 +123,7 @@ const GeneratorForm = () => {
       }
       
     } catch (error: any) {
-      console.error("Generation Error:", error);
+      console.error("[Generator] Fetch Error:", error);
       toast.error(error.message || "Generation failed.");
     } finally {
       setIsGenerating(false);
@@ -129,6 +133,11 @@ const GeneratorForm = () => {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
       <div className="lg:col-span-4 space-y-6">
+        {/* Debug Info */}
+        <div className="px-3 py-1 rounded-md bg-zinc-900 border border-white/5 text-[10px] font-mono text-zinc-500 flex items-center gap-2">
+          <Bug className="w-3 h-3" /> Active Provider: <span className="text-violet-400 uppercase">{provider}</span>
+        </div>
+
         {authError && (
           <div className="p-3 rounded-xl bg-orange-500/10 border border-orange-500/20 text-orange-400 text-[10px] flex items-center gap-2">
             <AlertCircle className="w-3 h-3 shrink-0" />
@@ -141,7 +150,7 @@ const GeneratorForm = () => {
             <Label className="text-sm font-medium text-zinc-400 flex items-center gap-2">
               <Cpu className="w-4 h-4" /> AI Provider
             </Label>
-            <Tabs defaultValue="openrouter" onValueChange={setProvider} className="w-full">
+            <Tabs value={provider} onValueChange={setProvider} className="w-full">
               <TabsList className="grid w-full grid-cols-2 bg-black/40 border border-white/5">
                 <TabsTrigger value="openrouter" className="text-[10px] uppercase font-bold tracking-widest data-[state=active]:bg-violet-600">OpenRouter</TabsTrigger>
                 <TabsTrigger value="gemini" className="text-[10px] uppercase font-bold tracking-widest data-[state=active]:bg-violet-600">Gemini</TabsTrigger>
