@@ -13,8 +13,8 @@ const About = () => {
           <div className="relative">
             <div className="relative z-10 shadow-2xl">
               <img 
-                src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?q=80&w=1973&auto=format&fit=crop" 
-                alt="Lagos Real Estate Office"
+                src="https://images.unsplash.com/photo-1613977257363-707ba9348227?q=80&w=2070&auto=format&fit=crop" 
+                alt="Lagos Luxury Villa"
                 className="w-full h-[650px] object-cover"
               />
             </div>
