@@ -5,11 +5,22 @@ import { useParams, useRouter } from 'next/navigation';
 import Navbar from "@/components/real-estate/Navbar";
 import Footer from "@/components/real-estate/Footer";
 import { Button } from '@/components/ui/button';
-import { Bed, Bath, Square, MapPin, Share2, Heart, ChevronLeft, Phone, Mail } from 'lucide-react';
+import { Bed, Bath, Square, MapPin, Share2, Heart, ChevronLeft, Phone, Mail, MessageCircle } from 'lucide-react';
+import { getWhatsAppLink } from '@/lib/utils';
 
 export default function PropertyDetailPage() {
   const { id } = useParams();
   const router = useRouter();
+  const WHATSAPP_NUMBER = "+2348000000000";
+  
+  // In a real app, we'd fetch this by ID. For now, using placeholder data.
+  const propertyTitle = "Ultra-Modern 5 Bedroom Penthouse";
+  const propertyLocation = "Banana Island, Ikoyi";
+
+  const waLink = getWhatsAppLink(
+    WHATSAPP_NUMBER, 
+    `Hi, I'm viewing the "${propertyTitle}" in ${propertyLocation} on your website. I'd like to schedule a viewing.`
+  );
 
   return (
     <div className="min-h-screen bg-white">
@@ -32,21 +43,13 @@ export default function PropertyDetailPage() {
                   className="w-full h-full object-cover"
                   alt="Property"
                 />
-                <div className="absolute top-4 right-4 flex gap-2">
-                  <Button size="icon" className="bg-white/20 backdrop-blur-md hover:bg-white text-white hover:text-[#002147]">
-                    <Share2 className="w-4 h-4" />
-                  </Button>
-                  <Button size="icon" className="bg-white/20 backdrop-blur-md hover:bg-white text-white hover:text-red-500">
-                    <Heart className="w-4 h-4" />
-                  </Button>
-                </div>
               </div>
 
               <div className="space-y-4">
                 <div className="flex items-center gap-2 text-[#C5A059] font-bold uppercase tracking-widest text-xs">
-                  <MapPin className="w-4 h-4" /> Banana Island, Ikoyi
+                  <MapPin className="w-4 h-4" /> {propertyLocation}
                 </div>
-                <h1 className="text-4xl font-bold text-[#002147]">Ultra-Modern 5 Bedroom Penthouse</h1>
+                <h1 className="text-4xl font-bold text-[#002147]">{propertyTitle}</h1>
                 <p className="text-3xl font-bold text-[#C5A059]">₦850,000,000</p>
               </div>
 
@@ -77,11 +80,17 @@ export default function PropertyDetailPage() {
               <div className="sticky top-32 p-8 bg-[#F8F9FA] border border-zinc-100 space-y-6">
                 <h3 className="text-xl font-bold text-[#002147]">Inquire About This Property</h3>
                 <div className="space-y-4">
+                  <a 
+                    href={waLink} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="w-full h-16 bg-[#25D366] hover:bg-[#20ba5a] text-white flex items-center justify-center gap-3 font-bold transition-all shadow-lg shadow-green-500/20"
+                  >
+                    <MessageCircle className="w-6 h-6 fill-current" />
+                    CHAT ON WHATSAPP
+                  </a>
                   <Button className="w-full h-14 bg-[#002147] hover:bg-[#003366] text-white rounded-none font-bold gap-2">
                     <Phone className="w-4 h-4" /> CALL AGENT
-                  </Button>
-                  <Button variant="outline" className="w-full h-14 border-[#002147] text-[#002147] hover:bg-[#002147] hover:text-white rounded-none font-bold gap-2">
-                    <Mail className="w-4 h-4" /> EMAIL INQUIRY
                   </Button>
                 </div>
                 <div className="pt-6 border-t border-zinc-200">
