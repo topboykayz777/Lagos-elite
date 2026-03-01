@@ -4,7 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Zap, BookOpen, LayoutDashboard, Settings } from 'lucide-react';
+import { Zap, BookOpen, LayoutDashboard, Settings, Globe } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const Navbar = () => {
@@ -19,8 +19,9 @@ const Navbar = () => {
 
   const navLinks = [
     { name: 'Generate', href: '/', icon: Zap },
+    { name: 'Gallery', href: '/gallery', icon: Globe },
     { name: 'Library', href: '/library', icon: BookOpen },
-    { name: 'Pricing', href: '/premium', icon: Settings },
+    { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
   ];
 
   return (
