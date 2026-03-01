@@ -12,7 +12,7 @@ export async function POST(req: Request) {
       }, { status: 500 });
     }
 
-    // Mistral 7B is typically the most reliable free model on OpenRouter
+    // Llama 3 8B Free is currently very stable on OpenRouter
     const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -22,7 +22,7 @@ export async function POST(req: Request) {
         "X-Title": "Unbound AI Writer",
       },
       body: JSON.stringify({
-        "model": "mistralai/mistral-7b-instruct:free",
+        "model": "meta-llama/llama-3-8b-instruct:free",
         "messages": [
           {
             "role": "system",
@@ -41,20 +41,18 @@ export async function POST(req: Request) {
     const data = await response.json();
     
     if (!response.ok) {
-      console.error("[generate-api] OpenRouter Error:", data);
       const msg = data.error?.message || "OpenRouter is currently overloaded. Try switching to the Gemini engine.";
       return NextResponse.json({ error: msg }, { status: response.status });
     }
 
     const text = data.choices?.[0]?.message?.content;
     if (!text) {
-      return NextResponse.json({ error: "The model returned an empty response. Try a different prompt or engine." }, { status: 500 });
+      return NextResponse.json({ error: "The model returned an empty response." }, { status: 500 });
     }
 
     return NextResponse.json({ text });
 
   } catch (error: any) {
-    console.error("[generate-api] Fatal Error:", error);
-    return NextResponse.json({ error: "Connection failed. Please check your internet or try again." }, { status: 500 });
+    return NextResponse.json({ error: "Connection failed. Please try again." }, { status: 500 });
   }
 }

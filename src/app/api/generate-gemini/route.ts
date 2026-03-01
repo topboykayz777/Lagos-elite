@@ -9,15 +9,15 @@ export async function POST(req: Request) {
 
     if (!GEMINI_API_KEY || GEMINI_API_KEY === "undefined") {
       return NextResponse.json({ 
-        error: "GEMINI_API_KEY is missing. Please add it to the 'Secrets' tab in the UI and click RESTART." 
+        error: "GEMINI_API_KEY is missing. Please add it to the 'Secrets' tab and click RESTART." 
       }, { status: 500 });
     }
 
     const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
     
-    // Using the most stable model name
+    // 'gemini-pro' is the most widely compatible model name across different key types
     const model = genAI.getGenerativeModel({ 
-      model: "gemini-1.5-flash",
+      model: "gemini-pro",
     });
 
     const result = await model.generateContent({
@@ -38,15 +38,9 @@ export async function POST(req: Request) {
     return NextResponse.json({ text });
 
   } catch (error: any) {
-    console.error("[gemini-api] Detailed Error:", error);
+    console.error("[gemini-api] Error:", error);
     
-    // Handle specific 404 error with a better message
-    if (error.message?.includes("404") || error.message?.includes("not found")) {
-      return NextResponse.json({ 
-        error: "Gemini Model Not Found: Your API key might not have access to 'gemini-1.5-flash' yet, or it's not available in your region. Try using OpenRouter instead." 
-      }, { status: 404 });
-    }
-
-    return NextResponse.json({ error: "Gemini API Error: " + (error.message || "Unknown error") }, { status: 500 });
+    const errorMessage = error.message || "Unknown Gemini Error";
+    return NextResponse.json({ error: `Gemini API Error: ${errorMessage}` }, { status: 500 });
   }
 }
