@@ -71,8 +71,11 @@ const Footer = () => {
         </div>
 
         <div className="pt-10 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6 text-[10px] text-zinc-500 font-black uppercase tracking-[0.2em]">
-          <p>© 2024 Lagos Elite Properties. All Rights Reserved.</p>
-          <p>Designed for Excellence in Nigeria.</p>
+          <p>© 2026 Lagos Elite Properties. All Rights Reserved.</p>
+          <div className="flex flex-col items-center md:items-end gap-1">
+            <p>Designed for Excellence in Nigeria.</p>
+            <p className="text-[#C5A059]">Designed by <span className="text-white">dev kayz</span></p>
+          </div>
         </div>
       </div>
     </footer>
