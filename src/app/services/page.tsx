@@ -6,7 +6,7 @@ import Footer from "@/components/real-estate/Footer";
 import Services from "@/components/real-estate/Services";
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { ShieldCheck, TrendingUp, Globe, Key } from 'lucide-react';
+import { ShieldCheck, TrendingUp, Globe, Key, Building2, Users, Briefcase, CheckCircle2 } from 'lucide-react';
 
 export default function ServicesPage() {
   return (
@@ -22,46 +22,86 @@ export default function ServicesPage() {
 
         <Services />
 
+        {/* Detailed Service Sections */}
         <section className="py-32 bg-white">
-          <div className="container mx-auto px-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-24 items-center">
-              <div className="space-y-12">
-                <div className="space-y-4">
-                  <h2 className="text-4xl font-bold text-[#002147]">Why Choose Elite?</h2>
-                  <p className="text-zinc-500 leading-relaxed">Our services go beyond the transaction. We provide a lifetime of support for your real estate assets.</p>
+          <div className="container mx-auto px-6 space-y-32">
+            
+            {/* Sales Detail */}
+            <div id="sales" className="grid grid-cols-1 lg:grid-cols-2 gap-24 items-center scroll-mt-32">
+              <div className="space-y-8">
+                <div className="w-16 h-16 bg-[#C5A059]/10 flex items-center justify-center">
+                  <Building2 className="w-8 h-8 text-[#C5A059]" />
                 </div>
-                
-                <div className="grid gap-8">
-                  {[
-                    { title: "Legal Due Diligence", desc: "Every property is verified at the Land Registry before listing.", icon: ShieldCheck },
-                    { title: "Market Intelligence", desc: "Access to off-market data and future development plans.", icon: TrendingUp },
-                    { title: "Global Reach", desc: "Connecting Nigerian assets with international capital.", icon: Globe },
-                    { title: "Seamless Closing", desc: "We handle all documentation from C of O to Governor's Consent.", icon: Key },
-                  ].map((item) => (
-                    <div key={item.title} className="flex gap-6">
-                      <div className="w-12 h-12 bg-[#C5A059]/10 flex items-center justify-center shrink-0">
-                        <item.icon className="w-6 h-6 text-[#C5A059]" />
-                      </div>
-                      <div className="space-y-1">
-                        <h4 className="font-bold text-[#002147]">{item.title}</h4>
-                        <p className="text-sm text-zinc-500">{item.desc}</p>
-                      </div>
-                    </div>
+                <h2 className="text-4xl font-bold text-[#002147]">Elite Property Sales</h2>
+                <p className="text-zinc-500 leading-relaxed text-lg">
+                  Our sales division specializes in the acquisition and disposal of high-value residential and commercial assets. We provide exclusive access to off-market opportunities that never reach the public portals.
+                </p>
+                <ul className="space-y-4">
+                  {["Private Treaty Sales", "Auction Representation", "Portfolio Liquidation", "International Buyer Network"].map((item) => (
+                    <li key={item} className="flex items-center gap-3">
+                      <CheckCircle2 className="w-5 h-5 text-[#C5A059]" />
+                      <span className="font-bold text-[#002147] uppercase text-[10px] tracking-widest">{item}</span>
+                    </li>
                   ))}
+                </ul>
+              </div>
+              <div className="relative">
+                <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=2070&auto=format&fit=crop" alt="Sales" className="w-full h-[500px] object-cover shadow-2xl" />
+                <div className="absolute -bottom-6 -right-6 w-32 h-32 bg-[#C5A059] -z-10" />
+              </div>
+            </div>
+
+            {/* Management Detail */}
+            <div id="management" className="grid grid-cols-1 lg:grid-cols-2 gap-24 items-center scroll-mt-32">
+              <div className="order-2 lg:order-1 relative">
+                <img src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=2070&auto=format&fit=crop" alt="Management" className="w-full h-[500px] object-cover shadow-2xl" />
+                <div className="absolute -top-6 -left-6 w-32 h-32 bg-[#002147] -z-10" />
+              </div>
+              <div className="order-1 lg:order-2 space-y-8">
+                <div className="w-16 h-16 bg-[#C5A059]/10 flex items-center justify-center">
+                  <ShieldCheck className="w-8 h-8 text-[#C5A059]" />
+                </div>
+                <h2 className="text-4xl font-bold text-[#002147]">Asset Management</h2>
+                <p className="text-zinc-500 leading-relaxed text-lg">
+                  We protect your wealth by ensuring your real estate assets are managed to the highest institutional standards. From tenant relations to structural maintenance, we handle it all.
+                </p>
+                <ul className="space-y-4">
+                  {["24/7 Facility Support", "Financial Reporting", "Legal Compliance", "Tenant Retention Strategy"].map((item) => (
+                    <li key={item} className="flex items-center gap-3">
+                      <CheckCircle2 className="w-5 h-5 text-[#C5A059]" />
+                      <span className="font-bold text-[#002147] uppercase text-[10px] tracking-widest">{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+
+            {/* Investment Detail */}
+            <div id="investment" className="grid grid-cols-1 lg:grid-cols-2 gap-24 items-center scroll-mt-32">
+              <div className="space-y-8">
+                <div className="w-16 h-16 bg-[#C5A059]/10 flex items-center justify-center">
+                  <TrendingUp className="w-8 h-8 text-[#C5A059]" />
+                </div>
+                <h2 className="text-4xl font-bold text-[#002147]">Investment Advisory</h2>
+                <p className="text-zinc-500 leading-relaxed text-lg">
+                  Real estate in Lagos is a high-yield asset class when approached with data. Our advisors provide the intelligence needed to navigate land banking, development, and commercial leasing.
+                </p>
+                <div className="grid grid-cols-2 gap-6">
+                  <div className="p-6 bg-zinc-50 border border-zinc-100">
+                    <p className="text-2xl font-bold text-[#C5A059]">18%</p>
+                    <p className="text-[8px] font-black uppercase tracking-widest text-zinc-400">Avg. Annual Yield</p>
+                  </div>
+                  <div className="p-6 bg-zinc-50 border border-zinc-100">
+                    <p className="text-2xl font-bold text-[#C5A059]">₦50B+</p>
+                    <p className="text-[8px] font-black uppercase tracking-widest text-zinc-400">Assets Under Advice</p>
+                  </div>
                 </div>
               </div>
               <div className="relative">
-                <img 
-                  src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=2070&auto=format&fit=crop" 
-                  alt="Commercial" 
-                  className="w-full h-[600px] object-cover shadow-2xl"
-                />
-                <div className="absolute -bottom-10 -left-10 bg-[#C5A059] p-10 text-white hidden md:block">
-                  <p className="text-4xl font-bold">15+</p>
-                  <p className="text-[10px] font-black uppercase tracking-widest">Years of Excellence</p>
-                </div>
+                <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=2015&auto=format&fit=crop" alt="Investment" className="w-full h-[500px] object-cover shadow-2xl" />
               </div>
             </div>
+
           </div>
         </section>
 

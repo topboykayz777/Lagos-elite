@@ -1,29 +1,33 @@
 "use client";
 
 import React from 'react';
-import { Building2, Key, TrendingUp, ShieldCheck, ArrowRight, Globe, Briefcase, Users } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { Building2, TrendingUp, ShieldCheck, ArrowRight, Globe } from 'lucide-react';
+import Link from 'next/link';
 
 const SERVICES = [
   {
+    id: "sales",
     title: "Property Sales",
     description: "Bespoke acquisition services for high-net-worth individuals seeking the most prestigious addresses in Nigeria.",
     icon: Building2,
     features: ["Off-Market Access", "Legal Verification", "Price Negotiation"]
   },
   {
+    id: "management",
     title: "Asset Management",
     description: "Comprehensive protection and maintenance of your real estate portfolio with institutional-grade reporting.",
     icon: ShieldCheck,
     features: ["Tenant Vetting", "Facility Maintenance", "Rent Optimization"]
   },
   {
+    id: "investment",
     title: "Investment Advisory",
     description: "Data-driven insights and market analysis to help you identify high-yield opportunities in emerging districts.",
     icon: TrendingUp,
     features: ["Yield Analysis", "Market Forecasting", "Portfolio Strategy"]
   },
   {
+    id: "relocation",
     title: "Relocation Concierge",
     description: "Seamless transition services for expatriates and returning Nigerians, covering every aspect of settling in.",
     icon: Globe,
@@ -59,7 +63,8 @@ const Services = () => {
           {SERVICES.map((service, index) => (
             <div 
               key={index} 
-              className="group relative p-12 bg-[#002147] hover:bg-[#002a5a] transition-all duration-700 overflow-hidden"
+              id={service.id}
+              className="group relative p-12 bg-[#002147] hover:bg-[#002a5a] transition-all duration-700 overflow-hidden scroll-mt-32"
             >
               {/* Hover Background Effect */}
               <div className="absolute inset-0 bg-[#C5A059] opacity-0 group-hover:opacity-[0.03] transition-opacity duration-700" />
@@ -91,9 +96,11 @@ const Services = () => {
                 </div>
 
                 <div className="pt-8">
-                  <button className="flex items-center gap-3 text-[10px] font-black uppercase tracking-[0.3em] text-[#C5A059] group/btn">
-                    Learn More <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-2 transition-transform" />
-                  </button>
+                  <Link href={`/services#${service.id}`}>
+                    <button className="flex items-center gap-3 text-[10px] font-black uppercase tracking-[0.3em] text-[#C5A059] group/btn">
+                      Learn More <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-2 transition-transform" />
+                    </button>
+                  </Link>
                 </div>
               </div>
             </div>

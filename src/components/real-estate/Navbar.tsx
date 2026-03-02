@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Phone, Menu, X, ChevronDown, Building2, MapPin, ShieldCheck, TrendingUp, Key, Globe, Briefcase, Users } from 'lucide-react';
+import { Menu, X, ChevronDown, Building2, MapPin, ShieldCheck, TrendingUp, Key, Globe } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { usePathname } from 'next/navigation';
 import Logo from './Logo';
@@ -116,7 +116,7 @@ const Navbar = () => {
             <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-[#C5A059]">Properties</h3>
             <div className="grid gap-6">
               {propertyLinks.map((link) => (
-                <Link key={link.title} href={link.href} className="group flex items-center gap-4">
+                <Link key={link.title} href={link.href} onClick={() => setIsMegaMenuOpen(false)} className="group flex items-center gap-4">
                   <div className="w-10 h-10 rounded-full bg-zinc-50 flex items-center justify-center group-hover:bg-[#002147] transition-colors">
                     <link.icon className="w-4 h-4 text-[#C5A059]" />
                   </div>
@@ -133,7 +133,7 @@ const Navbar = () => {
             <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-[#C5A059]">Services</h3>
             <div className="grid gap-6">
               {serviceLinks.map((link) => (
-                <Link key={link.title} href={link.href} className="group flex items-center gap-4">
+                <Link key={link.title} href={link.href} onClick={() => setIsMegaMenuOpen(false)} className="group flex items-center gap-4">
                   <div className="w-10 h-10 rounded-full bg-zinc-50 flex items-center justify-center group-hover:bg-[#002147] transition-colors">
                     <link.icon className="w-4 h-4 text-[#C5A059]" />
                   </div>
@@ -148,7 +148,7 @@ const Navbar = () => {
               <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-[#002147]">Private Advisory</h3>
               <p className="text-xs text-zinc-500 leading-relaxed">Schedule a confidential consultation with our senior partners for off-market acquisitions.</p>
             </div>
-            <Link href="/contact">
+            <Link href="/contact" onClick={() => setIsMegaMenuOpen(false)}>
               <Button className="w-full bg-[#002147] text-white rounded-none font-black text-[10px] tracking-widest h-12">BOOK CONSULTATION</Button>
             </Link>
           </div>

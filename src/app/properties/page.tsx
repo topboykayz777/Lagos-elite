@@ -45,10 +45,12 @@ export default function PropertiesPage() {
   const [selectedProperty, setSelectedProperty] = useState<any>(null);
   const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || "");
   const [typeFilter, setTypeFilter] = useState(searchParams.get('type') || "all");
+  const [areaFilter, setAreaFilter] = useState(searchParams.get('area') || "all");
 
   useEffect(() => {
     setSearchQuery(searchParams.get('q') || "");
     setTypeFilter(searchParams.get('type') || "all");
+    setAreaFilter(searchParams.get('area') || "all");
   }, [searchParams]);
 
   const filteredProperties = useMemo(() => {
@@ -56,9 +58,16 @@ export default function PropertiesPage() {
       const matchesSearch = p.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
                            p.location.toLowerCase().includes(searchQuery.toLowerCase());
       const matchesType = typeFilter === "all" || p.type.toLowerCase() === typeFilter.toLowerCase();
-      return matchesSearch && matchesType;
+      const matchesArea = areaFilter === "all" || p.location.toLowerCase().includes(areaFilter.toLowerCase());
+      
+      // Special case for "off-market" which we'll simulate with "Exclusive" or "Featured" tags
+      if (typeFilter === "off-market") {
+        return matchesSearch && (p.tag === "Exclusive" || p.tag === "Featured");
+      }
+
+      return matchesSearch && matchesType && matchesArea;
     });
-  }, [searchQuery, typeFilter]);
+  }, [searchQuery, typeFilter, areaFilter]);
 
   return (
     <div className="min-h-screen bg-white">
@@ -70,7 +79,8 @@ export default function PropertiesPage() {
               <span className="text-[#C5A059] text-[10px] font-black tracking-[0.4em] uppercase">The Elite Portfolio</span>
             </div>
             <h1 className="text-6xl md:text-8xl font-bold text-[#002147] tracking-tighter leading-[0.9]">
-              Curated <br />
+              {areaFilter !== "all" ? `${areaFilter} ` : ""}
+              {typeFilter !== "all" && typeFilter !== "off-market" ? `${typeFilter} ` : ""}
               <span className="text-[#C5A059]">Listings.</span>
             </h1>
           </div>
@@ -98,12 +108,13 @@ export default function PropertiesPage() {
                     <SelectItem value="apartment">APARTMENT</SelectItem>
                     <SelectItem value="duplex">DUPLEX</SelectItem>
                     <SelectItem value="commercial">COMMERCIAL</SelectItem>
+                    <SelectItem value="off-market">OFF-MARKET</SelectItem>
                   </SelectContent>
                 </Select>
-                {(searchQuery || typeFilter !== "all") && (
+                {(searchQuery || typeFilter !== "all" || areaFilter !== "all") && (
                   <Button 
                     variant="ghost" 
-                    onClick={() => { setSearchQuery(""); setTypeFilter("all"); }}
+                    onClick={() => { setSearchQuery(""); setTypeFilter("all"); setAreaFilter("all"); }}
                     className="h-14 px-4 text-zinc-400 hover:text-red-500"
                   >
                     <X className="w-4 h-4" />
@@ -133,7 +144,7 @@ export default function PropertiesPage() {
               </div>
               <h3 className="text-2xl font-bold text-[#002147]">No properties found</h3>
               <p className="text-zinc-500">Try adjusting your search or filters to find what you're looking for.</p>
-              <Button onClick={() => { setSearchQuery(""); setTypeFilter("all"); }} className="bg-[#C5A059] text-white rounded-none px-8">
+              <Button onClick={() => { setSearchQuery(""); setTypeFilter("all"); setAreaFilter("all"); }} className="bg-[#C5A059] text-white rounded-none px-8">
                 CLEAR ALL FILTERS
               </Button>
             </div>
