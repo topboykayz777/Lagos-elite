@@ -1,10 +1,10 @@
-"use client";
-
 import React, { Suspense } from 'react';
 import Navbar from "@/components/real-estate/Navbar";
 import Footer from "@/components/real-estate/Footer";
 import PropertiesContent from "@/components/real-estate/PropertiesContent";
 import { Loader2 } from 'lucide-react';
+
+export const dynamic = 'force-dynamic';
 
 export default function PropertiesPage() {
   return (
