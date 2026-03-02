@@ -44,31 +44,25 @@ const FeaturedProperties = () => {
   const [selectedProperty, setSelectedProperty] = useState<any>(null);
 
   return (
-    <section id="properties" className="py-32 bg-white relative">
-      {/* Section Demarcation */}
-      <div className="absolute left-10 top-32 hidden lg:flex flex-col items-center gap-6">
-        <span className="text-[10px] font-black text-[#C5A059] uppercase tracking-[0.5em] vertical-text">01 / PORTFOLIO</span>
-        <div className="w-px h-32 bg-zinc-100" />
-      </div>
-
-      <div className="container mx-auto px-6 lg:pl-32">
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-20 gap-8">
-          <div className="space-y-6">
+    <section id="properties" className="py-24 bg-white">
+      <div className="container mx-auto px-6">
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-8">
+          <div className="space-y-4">
             <div className="flex items-center gap-3 text-[#C5A059] font-black uppercase tracking-[0.4em] text-[10px]">
               <Zap className="w-3 h-3 fill-current" /> Curated Selection
             </div>
-            <h2 className="text-5xl md:text-7xl font-bold text-[#002147] tracking-tighter leading-none">
-              Elite <span className="text-[#C5A059]">Portfolio.</span>
+            <h2 className="text-4xl md:text-5xl font-bold text-[#002147] tracking-tighter">
+              Elite Portfolio.
             </h2>
           </div>
           <Link href="/properties">
-            <Button variant="ghost" className="text-[11px] font-black uppercase tracking-[0.3em] text-[#002147] hover:text-[#C5A059] gap-3 group">
+            <Button variant="ghost" className="text-[10px] font-black uppercase tracking-[0.3em] text-[#002147] hover:text-[#C5A059] gap-3 group p-0 h-auto">
               View All Listings <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Button>
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-10 gap-y-20">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {FEATURED.map((property) => (
             <PropertyCard 
               key={property.id} 
