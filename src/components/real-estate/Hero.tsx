@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { MapPin, Building2, ChevronRight } from 'lucide-react';
 import { useRouter } from 'next/navigation';
@@ -12,15 +12,40 @@ const LeafIcon = ({ className, style }: { className?: string, style?: React.CSSP
     className={className} 
     style={style}
   >
-    <path d="M21,12.47c0-4.65-3.77-8.42-8.42-8.42c-2.33,0-4.43,0.94-5.95,2.47C5.1,8,4.16,10.1,4.16,12.43c0,4.65,3.77,8.42,8.42,8.42 c2.33,0,4.43-0.94,5.95-2.47C20.06,16.9,21,14.8,21,12.47z M12.58,18.85c-3.54,0-6.42-2.88-6.42-6.42c0-1.77,0.72-3.37,1.88-4.53 c1.16-1.16,2.76-1.88,4.53-1.88c3.54,0,6.42,2.88,6.42,6.42c0,1.77-0.72,3.37-1.88,4.53C15.95,18.13,14.35,18.85,12.58,18.85z" opacity="0.3"/>
-    <path d="M17.5,12c0-3.04-2.46-5.5-5.5-5.5S6.5,8.96,6.5,12s2.46,5.5,5.5,5.5S17.5,15.04,17.5,12z M12,15.5c-1.93,0-3.5-1.57-3.5-3.5 s1.57-3.5,3.5-3.5s3.5,1.57,3.5,3.5S13.93,15.5,12,15.5z" />
+    <path d="M12,2C12,2 6,7 6,12C6,17 12,22 12,22C12,22 18,17 18,12C18,7 12,2 12,2M12,4C14.5,6.5 16,9.5 16,12C16,14.5 14.5,17.5 12,20C9.5,17.5 8,14.5 8,12C8,9.5 9.5,6.5 12,4Z" />
+    <path d="M12,22V12" stroke="currentColor" strokeWidth="0.5" opacity="0.5" />
   </svg>
 );
+
+interface Leaf {
+  id: number;
+  left: string;
+  duration: string;
+  delay: string;
+  size: string;
+  opacity: number;
+  rotation: string;
+}
 
 const Hero = () => {
   const router = useRouter();
   const [location, setLocation] = useState("");
   const [type, setType] = useState("all");
+  const [leaves, setLeaves] = useState<Leaf[]>([]);
+
+  // Generate leaves only on client to prevent hydration mismatch
+  useEffect(() => {
+    const newLeaves = [...Array(25)].map((_, i) => ({
+      id: i,
+      left: `${Math.random() * 100}%`,
+      duration: `${15 + Math.random() * 20}s`,
+      delay: `${-Math.random() * 25}s`,
+      size: `${12 + Math.random() * 18}px`,
+      opacity: 0.1 + Math.random() * 0.4,
+      rotation: `${Math.random() * 360}deg`
+    }));
+    setLeaves(newLeaves);
+  }, []);
 
   const handleDiscover = () => {
     const params = new URLSearchParams();
@@ -40,17 +65,18 @@ const Hero = () => {
 
       {/* Realistic Falling Leaves */}
       <div className="absolute inset-0 pointer-events-none z-10 overflow-hidden">
-        {[...Array(20)].map((_, i) => (
+        {leaves.map((leaf) => (
           <LeafIcon 
-            key={i}
+            key={leaf.id}
             className="absolute animate-leaf text-[#C5A059]"
             style={{
-              left: `${Math.random() * 100}%`,
-              animationDuration: `${12 + Math.random() * 15}s`,
-              animationDelay: `${-Math.random() * 20}s`,
-              width: `${15 + Math.random() * 15}px`,
-              height: `${15 + Math.random() * 15}px`,
-              opacity: 0.1 + Math.random() * 0.3,
+              left: leaf.left,
+              animationDuration: leaf.duration,
+              animationDelay: leaf.delay,
+              width: leaf.size,
+              height: leaf.size,
+              opacity: leaf.opacity,
+              transform: `rotate(${leaf.rotation})`,
             }}
           />
         ))}
