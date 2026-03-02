@@ -1,11 +1,12 @@
 "use client";
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import Navbar from "@/components/real-estate/Navbar";
 import Footer from "@/components/real-estate/Footer";
 import PropertyCard from "@/components/real-estate/PropertyCard";
 import LeadModal from "@/components/real-estate/LeadModal";
-import { Search, SlidersHorizontal, Grid, List, X } from 'lucide-react';
+import { Search, X } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { 
@@ -40,10 +41,15 @@ const ALL_PROPERTIES = [
 ];
 
 export default function PropertiesPage() {
+  const searchParams = useSearchParams();
   const [selectedProperty, setSelectedProperty] = useState<any>(null);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [typeFilter, setTypeFilter] = useState("all");
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || "");
+  const [typeFilter, setTypeFilter] = useState(searchParams.get('type') || "all");
+
+  useEffect(() => {
+    setSearchQuery(searchParams.get('q') || "");
+    setTypeFilter(searchParams.get('type') || "all");
+  }, [searchParams]);
 
   const filteredProperties = useMemo(() => {
     return ALL_PROPERTIES.filter(p => {
@@ -69,7 +75,6 @@ export default function PropertiesPage() {
             </h1>
           </div>
 
-          {/* Filter Bar - Not Sticky to avoid interference */}
           <div className="bg-white border border-zinc-100 p-4 mb-16 flex flex-col lg:flex-row lg:items-center justify-between gap-6 shadow-xl shadow-zinc-200/30">
             <div className="flex flex-col lg:flex-row items-center gap-4 flex-1 w-full">
               <div className="relative flex-1 w-full">

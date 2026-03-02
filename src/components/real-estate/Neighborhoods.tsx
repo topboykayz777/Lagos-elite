@@ -54,12 +54,7 @@ const AREAS = [
 
 const Neighborhoods = () => {
   const [emblaRef, emblaApi] = useEmblaCarousel(
-    { 
-      loop: true, 
-      align: 'start',
-      slidesToScroll: 1,
-      containScroll: 'trimSnaps'
-    }, 
+    { loop: true, align: 'start' }, 
     [Autoplay({ delay: 6000, stopOnInteraction: false })]
   );
 
@@ -88,7 +83,6 @@ const Neighborhoods = () => {
             </h2>
           </div>
 
-          {/* Progress Indicator */}
           <div className="flex items-center gap-3">
             {AREAS.map((_, index) => (
               <div 
@@ -113,9 +107,10 @@ const Neighborhoods = () => {
                     className="absolute inset-0 w-full h-full object-cover transition-transform duration-[3000ms] group-hover:scale-110"
                   />
                   
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#002147] via-[#002147]/20 to-transparent opacity-60 group-hover:opacity-90 transition-opacity duration-700" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#002147] via-[#002147]/20 to-transparent opacity-60 group-hover:opacity-95 transition-opacity duration-700" />
 
-                  <div className="absolute bottom-0 left-0 right-0 p-10 transition-transform duration-700 group-hover:-translate-y-32">
+                  {/* Default Content - Hidden on Hover */}
+                  <div className="absolute bottom-0 left-0 right-0 p-10 transition-all duration-500 group-hover:opacity-0 group-hover:translate-y-10">
                     <div className="flex items-center gap-2 text-[#C5A059] mb-2">
                       <MapPin className="w-4 h-4" />
                       <span className="text-[10px] font-black uppercase tracking-[0.2em]">Lagos, Nigeria</span>
@@ -128,21 +123,22 @@ const Neighborhoods = () => {
                     </p>
                   </div>
 
-                  <div className="absolute bottom-0 left-0 right-0 p-10 translate-y-full group-hover:translate-y-0 transition-transform duration-700 bg-gradient-to-t from-[#002147] to-transparent pt-20">
-                    <p className="text-zinc-300 text-sm font-medium leading-relaxed mb-6 opacity-0 group-hover:opacity-100 transition-opacity duration-700 delay-100">
+                  {/* Hover Content - Revealed on Hover */}
+                  <div className="absolute inset-0 p-10 flex flex-col justify-end translate-y-10 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-700">
+                    <p className="text-zinc-300 text-lg font-medium leading-relaxed mb-8">
                       {area.desc}
                     </p>
                     
-                    <div className="space-y-3 mb-8 opacity-0 group-hover:opacity-100 transition-opacity duration-700 delay-200">
+                    <div className="space-y-4 mb-10">
                       {area.stats.map((stat, i) => (
                         <div key={i} className="flex items-center gap-3">
-                          <div className="w-1 h-1 rounded-full bg-[#C5A059]" />
-                          <span className="text-[9px] font-black text-white uppercase tracking-widest">{stat}</span>
+                          <div className="w-1.5 h-1.5 rounded-full bg-[#C5A059]" />
+                          <span className="text-[10px] font-black text-white uppercase tracking-widest">{stat}</span>
                         </div>
                       ))}
                     </div>
 
-                    <Link href="/properties" className="inline-flex items-center gap-3 text-[#C5A059] text-[10px] font-black uppercase tracking-[0.3em] group/btn opacity-0 group-hover:opacity-100 transition-opacity duration-700 delay-300">
+                    <Link href="/properties" className="inline-flex items-center gap-3 text-[#C5A059] text-[10px] font-black uppercase tracking-[0.3em] group/btn">
                       Explore Collection <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-2 transition-transform" />
                     </Link>
                   </div>
