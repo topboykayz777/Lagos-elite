@@ -8,30 +8,47 @@
     --foreground: 222 47% 11%;
     --primary: 210 100% 14%; /* Deep Navy #002147 */
     --accent: 40 52% 56%;    /* Champagne Gold #C5A059 */
-    --radius: 0rem;          /* Sharp, modern edges */
+    --radius: 0rem;
   }
 }
 
 @layer base {
   body {
     @apply bg-white text-[#002147] antialiased;
-    font-feature-settings: "ss01", "ss02", "cv01", "cv02";
+    font-family: var(--font-inter), sans-serif;
   }
   
-  h1, h2, h3, h4 {
-    @apply tracking-tighter font-bold;
+  h1, h2, h3, h4, .font-serif {
+    font-family: var(--font-playfair), serif;
+    @apply tracking-tight;
   }
 
   /* Custom scrollbar */
   ::-webkit-scrollbar {
-    width: 6px;
+    width: 4px;
   }
   ::-webkit-scrollbar-track {
-    @apply bg-zinc-100;
+    @apply bg-zinc-50;
   }
   ::-webkit-scrollbar-thumb {
-    @apply bg-[#C5A059]/50 hover:bg-[#C5A059];
+    @apply bg-[#C5A059]/30 hover:bg-[#C5A059] transition-colors;
   }
+}
+
+.premium-blur {
+  @apply backdrop-blur-xl bg-white/80 border-b border-zinc-100;
+}
+
+.gold-gradient {
+  background: linear-gradient(135deg, #C5A059 0%, #E2C285 50%, #C5A059 100%);
+}
+
+.text-gold {
+  @apply text-[#C5A059];
+}
+
+.bg-navy {
+  @apply bg-[#002147];
 }
 
 @keyframes leaf-fall {
@@ -40,10 +57,10 @@
     opacity: 0;
   }
   10% {
-    opacity: 0.8;
+    opacity: 0.6;
   }
   90% {
-    opacity: 0.8;
+    opacity: 0.6;
   }
   100% {
     transform: translateY(110vh) translateX(100px) rotate(360deg);
