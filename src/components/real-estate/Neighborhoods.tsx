@@ -46,7 +46,7 @@ const AREAS = [
   { 
     name: "Magodo Phase 2", 
     count: 15, 
-    image: "https://images.unsplash.com/photo-1600607687940-467f5b637a53?q=80&w=2070&auto=format&fit=crop", 
+    image: "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?q=80&w=2075&auto=format&fit=crop", 
     desc: "A secure, family-oriented gated community.",
     stats: ["Gated Security", "Family Friendly", "Mainland Access"]
   }

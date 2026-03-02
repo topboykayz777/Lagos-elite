@@ -19,11 +19,32 @@ const Hero = () => {
 
   return (
     <section className="relative h-screen min-h-[700px] flex items-center overflow-hidden bg-[#002147]">
+      {/* Background Image */}
       <div 
         className="absolute inset-0 bg-cover bg-center bg-no-repeat scale-105 animate-in zoom-in duration-[10000ms]"
         style={{ backgroundImage: "url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=2070&auto=format&fit=crop')" }}
       >
         <div className="absolute inset-0 bg-gradient-to-r from-[#002147] via-[#002147]/60 to-transparent" />
+      </div>
+
+      {/* Falling Leaves Animation */}
+      <div className="absolute inset-0 pointer-events-none z-10 overflow-hidden">
+        {[...Array(15)].map((_, i) => (
+          <div 
+            key={i}
+            className="absolute animate-leaf opacity-20"
+            style={{
+              left: `${Math.random() * 100}%`,
+              animationDuration: `${10 + Math.random() * 20}s`,
+              animationDelay: `${-Math.random() * 20}s`,
+              width: `${10 + Math.random() * 20}px`,
+              height: `${10 + Math.random() * 20}px`,
+              backgroundColor: '#C5A059',
+              borderRadius: '50% 0 50% 0',
+              transform: `rotate(${Math.random() * 360}deg)`
+            }}
+          />
+        ))}
       </div>
 
       <div className="container mx-auto px-6 lg:px-20 relative z-20">
