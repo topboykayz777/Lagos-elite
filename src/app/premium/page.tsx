@@ -33,15 +33,15 @@ export default function PremiumPage() {
     setIsSubmitting(true);
     try {
       const { data: { user } } = await supabase.auth.getUser();
+      let currentUserId = user?.id;
       
       if (!user) {
-        // Try to sign in anonymously if not already
         const { data: authData, error: authError } = await supabase.auth.signInAnonymously();
         if (authError) throw authError;
-        var currentUserId = authData.user?.id;
-      } else {
-        var currentUserId = user.id;
+        currentUserId = authData.user?.id;
       }
+
+      if (!currentUserId) throw new Error("Could not identify user session.");
 
       const { error } = await supabase.from('premium_requests').insert({
         user_id: currentUserId,

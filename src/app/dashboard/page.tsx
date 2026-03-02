@@ -65,7 +65,6 @@ export default function DashboardPage() {
         const isPremium = profileData?.subscription_status === 'active';
         const storyCount = count || 0;
         
-        // Calculate dynamic score: Base 500 + 10 per story + 500 if premium
         const calculatedScore = 500 + (storyCount * 10) + (isPremium ? 500 : 0);
 
         setProfile(user);
