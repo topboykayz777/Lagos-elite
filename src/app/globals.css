@@ -58,13 +58,22 @@
     opacity: 0;
   }
   10% {
-    opacity: 0.6;
+    opacity: 0.7;
+  }
+  25% {
+    transform: translateY(25vh) translateX(30px) rotate(90deg);
+  }
+  50% {
+    transform: translateY(50vh) translateX(-30px) rotate(180deg);
+  }
+  75% {
+    transform: translateY(75vh) translateX(30px) rotate(270deg);
   }
   90% {
-    opacity: 0.6;
+    opacity: 0.7;
   }
   100% {
-    transform: translateY(110vh) translateX(100px) rotate(360deg);
+    transform: translateY(110vh) translateX(0) rotate(360deg);
     opacity: 0;
   }
 }
@@ -80,4 +89,8 @@
 
 .leading-tight-extra {
   line-height: 0.85;
+}
+
+.vertical-text {
+  writing-mode: vertical-rl;
 }

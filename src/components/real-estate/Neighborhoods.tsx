@@ -2,7 +2,7 @@
 
 import React, { useEffect, useCallback } from 'react';
 import Link from 'next/link';
-import { ChevronRight, ChevronLeft } from 'lucide-react';
+import { ChevronRight } from 'lucide-react';
 import useEmblaCarousel from 'embla-carousel-react';
 import Autoplay from 'embla-carousel-autoplay';
 
@@ -16,15 +16,7 @@ const AREAS = [
 ];
 
 const Neighborhoods = () => {
-  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true }, [Autoplay({ delay: 5000 })]);
-
-  const scrollPrev = useCallback(() => {
-    if (emblaApi) emblaApi.scrollPrev();
-  }, [emblaApi]);
-
-  const scrollNext = useCallback(() => {
-    if (emblaApi) emblaApi.scrollNext();
-  }, [emblaApi]);
+  const [emblaRef] = useEmblaCarousel({ loop: true }, [Autoplay({ delay: 5000 })]);
 
   return (
     <section className="py-24 bg-white overflow-hidden">
@@ -34,21 +26,6 @@ const Neighborhoods = () => {
             <h4 className="text-[#C5A059] font-bold uppercase tracking-[0.2em] text-sm">Prime Locations</h4>
             <h2 className="text-4xl md:text-5xl font-bold text-[#002147]">Explore Neighborhoods</h2>
             <p className="text-zinc-500">Discover the unique character and investment potential of Lagos' most sought-after districts.</p>
-          </div>
-          
-          <div className="flex gap-4">
-            <button 
-              onClick={scrollPrev}
-              className="w-12 h-12 border border-zinc-200 flex items-center justify-center hover:bg-[#002147] hover:text-white transition-all"
-            >
-              <ChevronLeft className="w-5 h-5" />
-            </button>
-            <button 
-              onClick={scrollNext}
-              className="w-12 h-12 border border-zinc-200 flex items-center justify-center hover:bg-[#002147] hover:text-white transition-all"
-            >
-              <ChevronRight className="w-5 h-5" />
-            </button>
           </div>
         </div>
 
