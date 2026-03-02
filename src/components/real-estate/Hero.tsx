@@ -54,14 +54,14 @@ const Hero = () => {
         className="absolute inset-0 bg-cover bg-center bg-no-repeat scale-105 animate-in zoom-in duration-[10000ms]"
         style={{ backgroundImage: "url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=2070&auto=format&fit=crop')" }}
       >
-        <div className="absolute inset-0 bg-gradient-to-r from-[#002147] via-[#002147]/40 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-l from-[#002147] via-[#002147]/40 to-transparent" />
       </div>
 
       <LeafAnimation />
 
-      <div className="container mx-auto px-6 md:px-12 lg:px-20 relative z-20">
-        <div className="max-w-4xl space-y-10">
-          <div className="space-y-6">
+      <div className="container mx-auto px-6 md:px-12 lg:px-20 relative z-20 flex justify-end">
+        <div className="max-w-4xl space-y-10 text-right">
+          <div className="space-y-6 flex flex-col items-end">
             <div className="inline-flex items-center gap-4 px-4 py-2 bg-white/5 border border-white/10 backdrop-blur-md">
               <span className="w-1.5 h-1.5 rounded-full bg-[#C5A059] shadow-[0_0_8px_#C5A059]" />
               <span className="text-[#C5A059] text-[9px] font-black tracking-[0.4em] uppercase">
@@ -80,10 +80,10 @@ const Hero = () => {
           </div>
 
           {/* Search Bar */}
-          <div className="bg-white p-1 shadow-2xl flex flex-col md:flex-row items-center max-w-3xl animate-in slide-in-from-bottom-8 duration-1000 delay-300">
+          <div className="bg-white p-1 shadow-2xl flex flex-col md:flex-row items-center max-w-3xl ml-auto animate-in slide-in-from-bottom-8 duration-1000 delay-300">
             <div className="flex-1 w-full flex items-center gap-4 px-6 py-4 border-b md:border-b-0 md:border-r border-zinc-100">
               <MapPin className="text-[#C5A059] w-4 h-4 shrink-0" />
-              <div className="flex flex-col w-full">
+              <div className="flex flex-col w-full text-left">
                 <span className="text-[8px] uppercase font-black text-zinc-400 tracking-[0.2em] mb-0.5">Location</span>
                 <input 
                   type="text" 
@@ -95,7 +95,7 @@ const Hero = () => {
             
             <div className="flex-1 w-full flex items-center gap-4 px-6 py-4 border-b md:border-b-0 md:border-r border-zinc-100">
               <Building2 className="text-[#C5A059] w-4 h-4 shrink-0" />
-              <div className="flex flex-col w-full">
+              <div className="flex flex-col w-full text-left">
                 <span className="text-[8px] uppercase font-black text-zinc-400 tracking-[0.2em] mb-0.5">Property Type</span>
                 <select className="text-xs font-black text-[#002147] focus:outline-none w-full bg-transparent appearance-none cursor-pointer uppercase tracking-widest">
                   <option>Penthouse</option>
@@ -113,13 +113,13 @@ const Hero = () => {
             </Link>
           </div>
 
-          <div className="flex items-center gap-12 pt-6">
-            <div className="flex flex-col">
+          <div className="flex items-center justify-end gap-12 pt-6">
+            <div className="flex flex-col items-end">
               <span className="text-4xl font-bold text-white tracking-tighter">₦10B+</span>
               <span className="text-[9px] text-zinc-500 uppercase font-black tracking-[0.3em] mt-1">Sales Volume</span>
             </div>
             <div className="w-px h-12 bg-white/10" />
-            <div className="flex flex-col">
+            <div className="flex flex-col items-end">
               <span className="text-4xl font-bold text-white tracking-tighter">150+</span>
               <span className="text-[9px] text-zinc-500 uppercase font-black tracking-[0.3em] mt-1">Elite Listings</span>
             </div>

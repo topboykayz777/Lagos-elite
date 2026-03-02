@@ -27,7 +27,7 @@ const About = () => {
 
           <div className="space-y-10">
             <div className="space-y-6">
-              <h4 className="text-[#C5A059] font-bold uppercase tracking-[0.3em] text-[10px]">Our Philosophy</h4>
+              <h4 className="text-[#C5A059] font-bold uppercase tracking-[0.4em] text-[10px]">Our Philosophy</h4>
               <h2 className="text-5xl md:text-6xl font-bold text-[#002147] leading-[1.1] tracking-tighter">
                 Redefining the <br />
                 <span className="text-[#C5A059]">Luxury Standard.</span>

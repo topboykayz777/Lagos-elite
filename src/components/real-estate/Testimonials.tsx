@@ -26,31 +26,31 @@ const TESTIMONIALS = [
 
 const Testimonials = () => {
   return (
-    <section className="py-24 bg-[#002147] text-white overflow-hidden relative">
+    <section className="py-32 bg-[#002147] text-white overflow-hidden relative">
       <div className="absolute top-0 right-0 opacity-5">
         <Quote size={400} />
       </div>
       
       <div className="container mx-auto px-6 relative z-10">
-        <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
-          <h4 className="text-[#C5A059] font-bold uppercase tracking-[0.2em] text-sm">Client Stories</h4>
-          <h2 className="text-4xl md:text-5xl font-bold">What Our Clients Say</h2>
+        <div className="text-center max-w-3xl mx-auto mb-20 space-y-6">
+          <h4 className="text-[#C5A059] font-bold uppercase tracking-[0.4em] text-[10px]">Client Stories</h4>
+          <h2 className="text-5xl md:text-7xl font-bold tracking-tighter leading-none">What Our <br /><span className="text-[#C5A059]">Clients Say.</span></h2>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
           {TESTIMONIALS.map((t, i) => (
-            <div key={i} className="bg-white/5 backdrop-blur-sm p-8 border border-white/10 hover:border-[#C5A059] transition-all duration-500">
-              <div className="flex gap-1 mb-6">
+            <div key={i} className="bg-white/5 backdrop-blur-sm p-10 border border-white/10 hover:border-[#C5A059] transition-all duration-500">
+              <div className="flex gap-1.5 mb-8">
                 {[...Array(5)].map((_, i) => (
                   <Star key={i} className="w-4 h-4 fill-[#C5A059] text-[#C5A059]" />
                 ))}
               </div>
-              <p className="text-zinc-300 italic mb-8 leading-relaxed">"{t.content}"</p>
-              <div className="flex items-center gap-4">
-                <img src={t.image} alt={t.name} className="w-12 h-12 rounded-full object-cover border-2 border-[#C5A059]" />
+              <p className="text-zinc-300 italic mb-10 leading-relaxed text-lg font-medium">"{t.content}"</p>
+              <div className="flex items-center gap-5">
+                <img src={t.image} alt={t.name} className="w-14 h-14 rounded-full object-cover border-2 border-[#C5A059]" />
                 <div>
-                  <p className="font-bold">{t.name}</p>
-                  <p className="text-xs text-[#C5A059] uppercase font-bold tracking-wider">{t.role}</p>
+                  <p className="font-bold text-lg">{t.name}</p>
+                  <p className="text-[10px] text-[#C5A059] uppercase font-black tracking-[0.2em]">{t.role}</p>
                 </div>
               </div>
             </div>

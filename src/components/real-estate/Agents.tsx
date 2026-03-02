@@ -23,32 +23,32 @@ const AGENTS = [
 
 const Agents = () => {
   return (
-    <section className="py-24 bg-[#F8F9FA]">
+    <section className="py-32 bg-white">
       <div className="container mx-auto px-6">
-        <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
-          <h4 className="text-[#C5A059] font-bold uppercase tracking-[0.2em] text-sm">Our Experts</h4>
-          <h2 className="text-4xl md:text-5xl font-bold text-[#002147]">Meet the Elite Team</h2>
-          <p className="text-zinc-500">Dedicated professionals with deep knowledge of the Nigerian property market.</p>
+        <div className="text-center max-w-3xl mx-auto mb-20 space-y-6">
+          <h4 className="text-[#C5A059] font-bold uppercase tracking-[0.4em] text-[10px]">Our Experts</h4>
+          <h2 className="text-5xl md:text-7xl font-bold text-[#002147] tracking-tighter leading-none">The Elite <br /><span className="text-[#C5A059]">Team.</span></h2>
+          <p className="text-zinc-500 text-lg font-medium">Dedicated professionals with deep knowledge of the Nigerian property market.</p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-16">
           {AGENTS.map((agent) => (
             <div key={agent.name} className="group">
-              <div className="relative h-[500px] overflow-hidden mb-6">
+              <div className="relative h-[600px] overflow-hidden mb-8">
                 <img 
                   src={agent.image} 
                   alt={agent.name} 
                   className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700"
                 />
-                <div className="absolute bottom-0 left-0 right-0 p-6 translate-y-full group-hover:translate-y-0 transition-transform duration-500 bg-[#002147]/90 backdrop-blur-sm flex justify-center gap-6">
-                  <Phone className="w-5 h-5 text-[#C5A059] cursor-pointer hover:scale-110 transition-transform" />
-                  <Mail className="w-5 h-5 text-[#C5A059] cursor-pointer hover:scale-110 transition-transform" />
-                  <Instagram className="w-5 h-5 text-[#C5A059] cursor-pointer hover:scale-110 transition-transform" />
+                <div className="absolute bottom-0 left-0 right-0 p-8 translate-y-full group-hover:translate-y-0 transition-transform duration-500 bg-[#002147]/95 backdrop-blur-sm flex justify-center gap-10">
+                  <Phone className="w-6 h-6 text-[#C5A059] cursor-pointer hover:scale-110 transition-transform" />
+                  <Mail className="w-6 h-6 text-[#C5A059] cursor-pointer hover:scale-110 transition-transform" />
+                  <Instagram className="w-6 h-6 text-[#C5A059] cursor-pointer hover:scale-110 transition-transform" />
                 </div>
               </div>
               <div className="text-center">
-                <h3 className="text-xl font-bold text-[#002147]">{agent.name}</h3>
-                <p className="text-sm text-[#C5A059] font-bold uppercase tracking-widest mt-1">{agent.role}</p>
+                <h3 className="text-2xl font-bold text-[#002147]">{agent.name}</h3>
+                <p className="text-xs text-[#C5A059] font-black uppercase tracking-[0.3em] mt-2">{agent.role}</p>
               </div>
             </div>
           ))}

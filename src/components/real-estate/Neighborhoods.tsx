@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useCallback } from 'react';
+import React from 'react';
 import Link from 'next/link';
 import { ChevronRight } from 'lucide-react';
 import useEmblaCarousel from 'embla-carousel-react';
@@ -19,21 +19,21 @@ const Neighborhoods = () => {
   const [emblaRef] = useEmblaCarousel({ loop: true }, [Autoplay({ delay: 5000 })]);
 
   return (
-    <section className="py-24 bg-white overflow-hidden">
+    <section className="py-32 bg-white overflow-hidden">
       <div className="container mx-auto px-6">
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-8">
-          <div className="max-w-2xl space-y-4">
-            <h4 className="text-[#C5A059] font-bold uppercase tracking-[0.2em] text-sm">Prime Locations</h4>
-            <h2 className="text-4xl md:text-5xl font-bold text-[#002147]">Explore Neighborhoods</h2>
-            <p className="text-zinc-500">Discover the unique character and investment potential of Lagos' most sought-after districts.</p>
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-20 gap-8">
+          <div className="max-w-2xl space-y-6">
+            <h4 className="text-[#C5A059] font-bold uppercase tracking-[0.4em] text-[10px]">Prime Locations</h4>
+            <h2 className="text-5xl md:text-7xl font-bold text-[#002147] tracking-tighter leading-none">Explore <br /><span className="text-[#C5A059]">Neighborhoods.</span></h2>
+            <p className="text-zinc-500 text-lg font-medium">Discover the unique character and investment potential of Lagos' most sought-after districts.</p>
           </div>
         </div>
 
         <div className="embla" ref={emblaRef}>
           <div className="embla__container flex">
             {AREAS.map((area) => (
-              <div key={area.name} className="embla__slide flex-[0_0_100%] min-w-0 px-2">
-                <Link href="/properties" className="group relative block h-[600px] overflow-hidden">
+              <div key={area.name} className="embla__slide flex-[0_0_100%] min-w-0 px-4">
+                <Link href="/properties" className="group relative block h-[650px] overflow-hidden">
                   <img 
                     src={area.image} 
                     alt={area.name} 
@@ -42,20 +42,20 @@ const Neighborhoods = () => {
                   <div className="absolute inset-0 bg-gradient-to-r from-[#002147] via-[#002147]/40 to-transparent opacity-90" />
                   
                   <div className="absolute inset-0 flex items-center p-12 md:p-24">
-                    <div className="max-w-xl space-y-6">
-                      <div className="space-y-2">
-                        <p className="text-[#C5A059] text-sm font-bold uppercase tracking-[0.3em] animate-in fade-in slide-in-from-left-4 duration-700">
+                    <div className="max-w-xl space-y-8">
+                      <div className="space-y-4">
+                        <p className="text-[#C5A059] text-xs font-black uppercase tracking-[0.4em] animate-in fade-in slide-in-from-left-4 duration-700">
                           {area.count} Exclusive Properties
                         </p>
-                        <h3 className="text-5xl md:text-7xl font-bold text-white tracking-tighter animate-in fade-in slide-in-from-left-6 duration-1000">
+                        <h3 className="text-6xl md:text-8xl font-bold text-white tracking-tighter animate-in fade-in slide-in-from-left-6 duration-1000">
                           {area.name}
                         </h3>
                       </div>
-                      <p className="text-zinc-300 text-lg leading-relaxed animate-in fade-in slide-in-from-left-8 duration-1000 delay-200">
+                      <p className="text-zinc-300 text-xl leading-relaxed animate-in fade-in slide-in-from-left-8 duration-1000 delay-200 font-medium">
                         {area.desc}
                       </p>
-                      <div className="pt-4 animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-500">
-                        <span className="inline-flex items-center gap-3 text-white font-bold uppercase tracking-widest text-xs group-hover:text-[#C5A059] transition-colors">
+                      <div className="pt-6 animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-500">
+                        <span className="inline-flex items-center gap-4 text-white font-black uppercase tracking-[0.3em] text-[10px] group-hover:text-[#C5A059] transition-colors">
                           EXPLORE LISTINGS <ChevronRight className="w-4 h-4" />
                         </span>
                       </div>
