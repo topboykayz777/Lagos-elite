@@ -23,7 +23,7 @@ interface LeadModalProps {
 
 const LeadModal = ({ isOpen, onClose, propertyTitle, propertyLocation }: LeadModalProps) => {
   const [loading, setLoading] = useState(false);
-  const WHATSAPP_NUMBER = "+2348000000000";
+  const WHATSAPP_NUMBER = "+2348166073291";
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

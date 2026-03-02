@@ -6,7 +6,7 @@ import { MessageCircle } from 'lucide-react';
 const WhatsAppCTA = () => {
   return (
     <a 
-      href="https://wa.me/2348000000000" 
+      href="https://wa.me/2348166073291" 
       target="_blank" 
       rel="noopener noreferrer"
       className="fixed bottom-8 right-8 z-50 flex items-center gap-3 bg-[#25D366] text-white px-6 py-4 rounded-full shadow-2xl hover:scale-105 transition-transform group"

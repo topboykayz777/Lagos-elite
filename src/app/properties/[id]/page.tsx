@@ -11,7 +11,7 @@ import { getWhatsAppLink } from '@/lib/utils';
 export default function PropertyDetailPage() {
   const { id } = useParams();
   const router = useRouter();
-  const WHATSAPP_NUMBER = "+2348000000000";
+  const WHATSAPP_NUMBER = "+2348166073291";
   
   // In a real app, we'd fetch this by ID. For now, using placeholder data.
   const propertyTitle = "Ultra-Modern 5 Bedroom Penthouse";

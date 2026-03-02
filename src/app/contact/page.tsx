@@ -34,16 +34,15 @@ export default function ContactPage() {
                     <Phone className="text-[#C5A059] w-6 h-6" />
                   </div>
                   <h3 className="text-xl font-bold text-[#002147]">Phone</h3>
-                  <p className="text-zinc-500">+234 800 000 0000</p>
-                  <p className="text-zinc-500">+234 801 111 1111</p>
+                  <p className="text-zinc-500">+234 816 607 3291</p>
+                  <p className="text-zinc-500">0816 607 3291</p>
                 </div>
                 <div className="space-y-4">
                   <div className="w-12 h-12 bg-zinc-50 flex items-center justify-center">
                     <Mail className="text-[#C5A059] w-6 h-6" />
                   </div>
                   <h3 className="text-xl font-bold text-[#002147]">Email</h3>
-                  <p className="text-zinc-500">info@lagoselite.com</p>
-                  <p className="text-zinc-500">sales@lagoselite.com</p>
+                  <p className="text-zinc-500">topboykayz@gmail.com</p>
                 </div>
                 <div className="space-y-4">
                   <div className="w-12 h-12 bg-zinc-50 flex items-center justify-center">
@@ -58,9 +57,11 @@ export default function ContactPage() {
               <div className="p-10 bg-[#002147] text-white space-y-6">
                 <h3 className="text-2xl font-bold">Instant Support</h3>
                 <p className="text-zinc-400">Need a quick response? Chat with our senior consultants directly on WhatsApp.</p>
-                <Button className="w-full h-14 bg-[#25D366] hover:bg-[#20ba5a] text-white rounded-none font-black text-xs tracking-widest gap-3">
-                  <MessageCircle className="w-5 h-5 fill-current" /> START WHATSAPP CHAT
-                </Button>
+                <a href="https://wa.me/2348166073291" target="_blank" rel="noopener noreferrer">
+                  <Button className="w-full h-14 bg-[#25D366] hover:bg-[#20ba5a] text-white rounded-none font-black text-xs tracking-widest gap-3">
+                    <MessageCircle className="w-5 h-5 fill-current" /> START WHATSAPP CHAT
+                  </Button>
+                </a>
               </div>
             </div>
 

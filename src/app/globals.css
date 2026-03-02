@@ -54,32 +54,33 @@
 
 @keyframes leaf-fall {
   0% {
-    transform: translateY(-10vh) translateX(0) rotate(0deg);
+    transform: translateY(-10vh) translateX(0) rotate(0deg) rotateY(0deg);
     opacity: 0;
   }
   10% {
-    opacity: 0.7;
+    opacity: 0.8;
   }
   25% {
-    transform: translateY(25vh) translateX(30px) rotate(90deg);
+    transform: translateY(25vh) translateX(40px) rotate(90deg) rotateY(180deg);
   }
   50% {
-    transform: translateY(50vh) translateX(-30px) rotate(180deg);
+    transform: translateY(50vh) translateX(-40px) rotate(180deg) rotateY(0deg);
   }
   75% {
-    transform: translateY(75vh) translateX(30px) rotate(270deg);
+    transform: translateY(75vh) translateX(40px) rotate(270deg) rotateY(180deg);
   }
   90% {
-    opacity: 0.7;
+    opacity: 0.8;
   }
   100% {
-    transform: translateY(110vh) translateX(0) rotate(360deg);
+    transform: translateY(110vh) translateX(0) rotate(360deg) rotateY(0deg);
     opacity: 0;
   }
 }
 
 .animate-leaf {
   animation: leaf-fall linear infinite;
+  transform-origin: center;
 }
 
 /* Typography refinements */

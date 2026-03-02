@@ -86,11 +86,11 @@ const Navbar = () => {
         <div className="hidden lg:flex items-center gap-8">
           <div className="flex flex-col items-end">
             <span className={cn("text-[9px] font-black uppercase tracking-[0.2em]", isDarkText ? "text-zinc-400" : "text-zinc-500")}>Concierge</span>
-            <a href="tel:+2348000000000" className={cn(
+            <a href="tel:+2348166073291" className={cn(
               "flex items-center gap-2 text-xs font-black tracking-widest",
               isDarkText ? "text-[#002147]" : "text-white"
             )}>
-              +234 800 000 0000
+              +234 816 607 3291
             </a>
           </div>
           <Link href="/list-property">

@@ -12,8 +12,7 @@ const LeafIcon = ({ className, style }: { className?: string, style?: React.CSSP
     className={className} 
     style={style}
   >
-    <path d="M12,2C12,2 6,7 6,12C6,17 12,22 12,22C12,22 18,17 18,12C18,7 12,2 12,2M12,4C14.5,6.5 16,9.5 16,12C16,14.5 14.5,17.5 12,20C9.5,17.5 8,14.5 8,12C8,9.5 9.5,6.5 12,4Z" />
-    <path d="M12,22V12" stroke="currentColor" strokeWidth="0.5" opacity="0.3" />
+    <path d="M17,8C8,10 5.9,16.17 3.82,21.34L5.71,22L6.66,19.7C7.14,19.87 7.64,20 8.13,20C11,20 14.28,17.29 18,10C19.56,6.89 20,4 20,2C20,2 10.8,2.36 5.75,8.19" />
   </svg>
 );
 
@@ -35,14 +34,14 @@ const Hero = () => {
   const [leaves, setLeaves] = useState<Leaf[]>([]);
 
   useEffect(() => {
-    const leafColors = ['#2D5A27', '#4A773C', '#1B3C1A', '#3D5229'];
-    const newLeaves = [...Array(30)].map((_, i) => ({
+    const leafColors = ['#2D5A27', '#4A773C', '#1B3C1A', '#3D5229', '#556B2F'];
+    const newLeaves = [...Array(35)].map((_, i) => ({
       id: i,
       left: `${Math.random() * 100}%`,
-      duration: `${12 + Math.random() * 18}s`,
-      delay: `${-Math.random() * 25}s`,
-      size: `${10 + Math.random() * 15}px`,
-      opacity: 0.2 + Math.random() * 0.5,
+      duration: `${10 + Math.random() * 15}s`,
+      delay: `${-Math.random() * 20}s`,
+      size: `${12 + Math.random() * 12}px`,
+      opacity: 0.3 + Math.random() * 0.5,
       rotation: `${Math.random() * 360}deg`,
       color: leafColors[Math.floor(Math.random() * leafColors.length)]
     }));
