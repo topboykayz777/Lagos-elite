@@ -7,8 +7,14 @@ import Link from 'next/link';
 
 const About = () => {
   return (
-    <section id="about" className="py-32 bg-white">
-      <div className="container mx-auto px-6">
+    <section id="about" className="py-32 bg-zinc-50 relative">
+      {/* Section Demarcation */}
+      <div className="absolute left-10 top-32 hidden lg:flex flex-col items-center gap-6">
+        <span className="text-[10px] font-black text-[#C5A059] uppercase tracking-[0.5em] vertical-text">02 / PHILOSOPHY</span>
+        <div className="w-px h-32 bg-zinc-200" />
+      </div>
+
+      <div className="container mx-auto px-6 lg:pl-32">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-24 items-center">
           <div className="relative">
             <div className="relative z-10 shadow-2xl">

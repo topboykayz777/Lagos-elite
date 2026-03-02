@@ -28,8 +28,14 @@ const SERVICES = [
 
 const Services = () => {
   return (
-    <section id="services" className="py-32 bg-[#F8F9FA]">
-      <div className="container mx-auto px-6">
+    <section id="services" className="py-32 bg-white relative">
+      {/* Section Demarcation */}
+      <div className="absolute left-10 top-32 hidden lg:flex flex-col items-center gap-6">
+        <span className="text-[10px] font-black text-[#C5A059] uppercase tracking-[0.5em] vertical-text">03 / CONCIERGE</span>
+        <div className="w-px h-32 bg-zinc-100" />
+      </div>
+
+      <div className="container mx-auto px-6 lg:pl-32">
         <div className="text-center max-w-3xl mx-auto mb-20 space-y-6">
           <h4 className="text-[#C5A059] font-bold uppercase tracking-[0.4em] text-[10px]">Our Expertise</h4>
           <h2 className="text-5xl md:text-7xl font-bold text-[#002147] tracking-tighter leading-none">Concierge <br /><span className="text-[#C5A059]">Solutions.</span></h2>
@@ -40,9 +46,9 @@ const Services = () => {
           {SERVICES.map((service, index) => (
             <div 
               key={index} 
-              className="p-10 bg-white border border-zinc-100 hover:border-[#C5A059] transition-all duration-500 group hover:shadow-2xl"
+              className="p-10 bg-zinc-50 border border-zinc-100 hover:border-[#C5A059] transition-all duration-500 group hover:shadow-2xl"
             >
-              <div className="w-20 h-20 bg-[#F8F9FA] group-hover:bg-[#002147] flex items-center justify-center mb-8 transition-colors duration-500">
+              <div className="w-20 h-20 bg-white group-hover:bg-[#002147] flex items-center justify-center mb-8 transition-colors duration-500">
                 <service.icon className="w-10 h-10 text-[#C5A059]" />
               </div>
               <h3 className="text-2xl font-bold text-[#002147] mb-6 group-hover:text-[#C5A059] transition-colors">
