@@ -5,7 +5,7 @@ import Navbar from "@/components/real-estate/Navbar";
 import Footer from "@/components/real-estate/Footer";
 import PropertyCard from "@/components/real-estate/PropertyCard";
 import LeadModal from "@/components/real-estate/LeadModal";
-import { Search, Filter, SlidersHorizontal, Grid, List } from 'lucide-react';
+import { Search, SlidersHorizontal, Grid, List } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 
@@ -49,7 +49,6 @@ export default function PropertiesPage() {
             </p>
           </div>
 
-          {/* Filter Bar */}
           <div className="sticky top-24 z-30 bg-white/80 backdrop-blur-xl border border-zinc-100 p-4 mb-16 flex flex-col lg:row-row lg:items-center justify-between gap-6 shadow-2xl shadow-zinc-200/50">
             <div className="flex flex-col lg:flex-row items-center gap-4 flex-1 w-full">
               <div className="relative flex-1 w-full">
@@ -76,7 +75,6 @@ export default function PropertiesPage() {
             </div>
           </div>
 
-          {/* Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-10 gap-y-20">
             {ALL_PROPERTIES.map((property) => (
               <PropertyCard 
@@ -87,7 +85,6 @@ export default function PropertiesPage() {
             ))}
           </div>
 
-          {/* Pagination / Load More */}
           <div className="mt-32 text-center">
             <div className="inline-flex flex-col items-center gap-6">
               <div className="w-px h-20 bg-gradient-to-b from-[#C5A059] to-transparent" />

@@ -65,9 +65,6 @@ const Neighborhoods = () => {
 
   const [selectedIndex, setSelectedIndex] = useState(0);
 
-  const scrollPrev = useCallback(() => emblaApi && emblaApi.scrollPrev(), [emblaApi]);
-  const scrollNext = useCallback(() => emblaApi && emblaApi.scrollNext(), [emblaApi]);
-
   const onSelect = useCallback(() => {
     if (!emblaApi) return;
     setSelectedIndex(emblaApi.selectedScrollSnap());
@@ -91,33 +88,17 @@ const Neighborhoods = () => {
             </h2>
           </div>
 
-          {/* Editorial Navigation */}
-          <div className="flex items-center gap-12">
-            <div className="flex items-center gap-3">
-              {AREAS.map((_, index) => (
-                <div 
-                  key={index}
-                  className={cn(
-                    "h-0.5 transition-all duration-700",
-                    selectedIndex === index ? "w-12 bg-[#C5A059]" : "w-4 bg-zinc-100"
-                  )}
-                />
-              ))}
-            </div>
-            <div className="flex items-center gap-8">
-              <button 
-                onClick={scrollPrev}
-                className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-400 hover:text-[#002147] transition-colors"
-              >
-                PREV
-              </button>
-              <button 
-                onClick={scrollNext}
-                className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-400 hover:text-[#002147] transition-colors"
-              >
-                NEXT
-              </button>
-            </div>
+          {/* Progress Indicator */}
+          <div className="flex items-center gap-3">
+            {AREAS.map((_, index) => (
+              <div 
+                key={index}
+                className={cn(
+                  "h-0.5 transition-all duration-700",
+                  selectedIndex === index ? "w-12 bg-[#C5A059]" : "w-4 bg-zinc-100"
+                )}
+              />
+            ))}
           </div>
         </div>
 
@@ -126,17 +107,14 @@ const Neighborhoods = () => {
             {AREAS.map((area) => (
               <div key={area.name} className="embla__slide flex-[0_0_100%] sm:flex-[0_0_50%] lg:flex-[0_0_33.333%] min-w-0">
                 <div className="group relative bg-white overflow-hidden h-[550px] cursor-pointer">
-                  {/* Background Image */}
                   <img 
                     src={area.image} 
                     alt={area.name} 
                     className="absolute inset-0 w-full h-full object-cover transition-transform duration-[3000ms] group-hover:scale-110"
                   />
                   
-                  {/* Gradient Overlay */}
                   <div className="absolute inset-0 bg-gradient-to-t from-[#002147] via-[#002147]/20 to-transparent opacity-60 group-hover:opacity-90 transition-opacity duration-700" />
 
-                  {/* Default Content (Visible) */}
                   <div className="absolute bottom-0 left-0 right-0 p-10 transition-transform duration-700 group-hover:-translate-y-32">
                     <div className="flex items-center gap-2 text-[#C5A059] mb-2">
                       <MapPin className="w-4 h-4" />
@@ -150,7 +128,6 @@ const Neighborhoods = () => {
                     </p>
                   </div>
 
-                  {/* Hover Content (Revealed) */}
                   <div className="absolute bottom-0 left-0 right-0 p-10 translate-y-full group-hover:translate-y-0 transition-transform duration-700 bg-gradient-to-t from-[#002147] to-transparent pt-20">
                     <p className="text-zinc-300 text-sm font-medium leading-relaxed mb-6 opacity-0 group-hover:opacity-100 transition-opacity duration-700 delay-100">
                       {area.desc}
