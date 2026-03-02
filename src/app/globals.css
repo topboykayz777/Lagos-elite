@@ -15,11 +15,12 @@
 @layer base {
   body {
     @apply bg-white text-[#002147] antialiased;
-    font-family: var(--font-inter), sans-serif;
+    font-family: var(--font-outfit), sans-serif;
+    letter-spacing: -0.01em;
   }
   
   h1, h2, h3, h4, .font-serif {
-    font-family: var(--font-playfair), serif;
+    font-family: var(--font-bodoni), serif;
     @apply tracking-tight;
   }
 
@@ -70,4 +71,13 @@
 
 .animate-leaf {
   animation: leaf-fall linear infinite;
+}
+
+/* Typography refinements */
+.tracking-widest-extra {
+  letter-spacing: 0.4em;
+}
+
+.leading-tight-extra {
+  line-height: 0.85;
 }

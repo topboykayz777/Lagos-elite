@@ -66,9 +66,9 @@ const Hero = () => {
               </span>
             </div>
             
-            <h1 className="text-7xl md:text-9xl font-bold text-white leading-[0.85] tracking-tighter">
+            <h1 className="text-7xl md:text-9xl font-bold text-white leading-tight-extra tracking-tighter">
               Sovereign <br />
-              <span className="text-[#C5A059]">Real Estate.</span>
+              <span className="text-[#C5A059] font-normal italic">Real Estate.</span>
             </h1>
             
             <p className="text-zinc-300 text-xl md:text-2xl max-w-2xl leading-relaxed font-medium opacity-90">
