@@ -6,14 +6,6 @@ import {
   DialogContent, 
   DialogHeader, 
   DialogTitle, 
-  DialogDescription,
-  DialogFooter
-} from "@/components/ui/badge"; // Using badge as a placeholder if Dialog isn't fully exported, but wait, I have dialog.tsx
-import { 
-  Dialog as ShadDialog, 
-  DialogContent as ShadContent, 
-  DialogHeader as ShadHeader, 
-  DialogTitle as ShadTitle,
   DialogTrigger
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -38,7 +30,7 @@ const ShareDialog = ({ storyId, trigger }: ShareDialogProps) => {
   };
 
   return (
-    <ShadDialog>
+    <Dialog>
       <DialogTrigger asChild>
         {trigger || (
           <Button variant="ghost" size="icon" className="h-8 w-8 text-zinc-400 hover:text-violet-400">
@@ -46,12 +38,12 @@ const ShareDialog = ({ storyId, trigger }: ShareDialogProps) => {
           </Button>
         )}
       </DialogTrigger>
-      <ShadContent className="bg-[#0a0a0a] border-white/10 text-zinc-100 sm:max-w-md rounded-3xl">
-        <ShadHeader>
-          <ShadTitle className="text-2xl font-black tracking-tighter flex items-center gap-2">
+      <DialogContent className="bg-[#0a0a0a] border-white/10 text-zinc-100 sm:max-w-md rounded-3xl">
+        <DialogHeader>
+          <DialogTitle className="text-2xl font-black tracking-tighter flex items-center gap-2">
             <Globe className="w-5 h-5 text-violet-500" /> Share Story
-          </ShadTitle>
-        </ShadHeader>
+          </DialogTitle>
+        </DialogHeader>
         
         <div className="space-y-6 py-4">
           <div className="p-4 rounded-2xl bg-violet-500/5 border border-violet-500/10 space-y-2">
@@ -86,8 +78,8 @@ const ShareDialog = ({ storyId, trigger }: ShareDialogProps) => {
             <span className="text-[8px] font-bold text-zinc-600 uppercase">Social</span>
           </div>
         </div>
-      </ShadContent>
-    </ShadDialog>
+      </DialogContent>
+    </Dialog>
   );
 };
 
