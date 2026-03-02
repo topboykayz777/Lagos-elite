@@ -33,7 +33,7 @@ export default function PremiumPage() {
     setIsSubmitting(true);
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      let currentUserId = user?.id;
+      let currentUserId: string | undefined = user?.id;
       
       if (!user) {
         const { data: authData, error: authError } = await supabase.auth.signInAnonymously();
