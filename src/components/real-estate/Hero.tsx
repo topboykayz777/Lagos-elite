@@ -5,6 +5,18 @@ import { Button } from '@/components/ui/button';
 import { MapPin, Building2, ChevronRight } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
+const LeafIcon = ({ className, style }: { className?: string, style?: React.CSSProperties }) => (
+  <svg 
+    viewBox="0 0 24 24" 
+    fill="currentColor" 
+    className={className} 
+    style={style}
+  >
+    <path d="M21,12.47c0-4.65-3.77-8.42-8.42-8.42c-2.33,0-4.43,0.94-5.95,2.47C5.1,8,4.16,10.1,4.16,12.43c0,4.65,3.77,8.42,8.42,8.42 c2.33,0,4.43-0.94,5.95-2.47C20.06,16.9,21,14.8,21,12.47z M12.58,18.85c-3.54,0-6.42-2.88-6.42-6.42c0-1.77,0.72-3.37,1.88-4.53 c1.16-1.16,2.76-1.88,4.53-1.88c3.54,0,6.42,2.88,6.42,6.42c0,1.77-0.72,3.37-1.88,4.53C15.95,18.13,14.35,18.85,12.58,18.85z" opacity="0.3"/>
+    <path d="M17.5,12c0-3.04-2.46-5.5-5.5-5.5S6.5,8.96,6.5,12s2.46,5.5,5.5,5.5S17.5,15.04,17.5,12z M12,15.5c-1.93,0-3.5-1.57-3.5-3.5 s1.57-3.5,3.5-3.5s3.5,1.57,3.5,3.5S13.93,15.5,12,15.5z" />
+  </svg>
+);
+
 const Hero = () => {
   const router = useRouter();
   const [location, setLocation] = useState("");
@@ -19,7 +31,6 @@ const Hero = () => {
 
   return (
     <section className="relative h-screen min-h-[700px] flex items-center overflow-hidden bg-[#002147]">
-      {/* Background Image */}
       <div 
         className="absolute inset-0 bg-cover bg-center bg-no-repeat scale-105 animate-in zoom-in duration-[10000ms]"
         style={{ backgroundImage: "url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=2070&auto=format&fit=crop')" }}
@@ -27,21 +38,19 @@ const Hero = () => {
         <div className="absolute inset-0 bg-gradient-to-r from-[#002147] via-[#002147]/60 to-transparent" />
       </div>
 
-      {/* Falling Leaves Animation */}
+      {/* Realistic Falling Leaves */}
       <div className="absolute inset-0 pointer-events-none z-10 overflow-hidden">
-        {[...Array(15)].map((_, i) => (
-          <div 
+        {[...Array(20)].map((_, i) => (
+          <LeafIcon 
             key={i}
-            className="absolute animate-leaf opacity-20"
+            className="absolute animate-leaf text-[#C5A059]"
             style={{
               left: `${Math.random() * 100}%`,
-              animationDuration: `${10 + Math.random() * 20}s`,
+              animationDuration: `${12 + Math.random() * 15}s`,
               animationDelay: `${-Math.random() * 20}s`,
-              width: `${10 + Math.random() * 20}px`,
-              height: `${10 + Math.random() * 20}px`,
-              backgroundColor: '#C5A059',
-              borderRadius: '50% 0 50% 0',
-              transform: `rotate(${Math.random() * 360}deg)`
+              width: `${15 + Math.random() * 15}px`,
+              height: `${15 + Math.random() * 15}px`,
+              opacity: 0.1 + Math.random() * 0.3,
             }}
           />
         ))}
@@ -67,7 +76,6 @@ const Hero = () => {
             </p>
           </div>
 
-          {/* Search Bar */}
           <div className="bg-white p-1 shadow-2xl flex flex-col md:flex-row items-center w-full max-w-2xl animate-in slide-in-from-bottom-8 duration-1000 delay-300">
             <div className="flex-1 w-full flex items-center gap-4 px-4 py-3 border-b md:border-b-0 md:border-r border-zinc-100">
               <MapPin className="text-[#C5A059] w-4 h-4 shrink-0" />
