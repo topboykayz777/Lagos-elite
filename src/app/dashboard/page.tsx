@@ -101,7 +101,7 @@ export default function DashboardPage() {
     if (error) {
       toast.error("Failed to update identity");
     } else {
-      setStats(prev => ({ ...prev, identity: newIdentity } as UserStats));
+      setStats(prev => ({ ...prev, identity: newIdentity as string[] }));
       toast.success("Identity updated");
     }
   };
