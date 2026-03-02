@@ -13,7 +13,7 @@ const LeafIcon = ({ className, style }: { className?: string, style?: React.CSSP
     style={style}
   >
     <path d="M12,2C12,2 6,7 6,12C6,17 12,22 12,22C12,22 18,17 18,12C18,7 12,2 12,2M12,4C14.5,6.5 16,9.5 16,12C16,14.5 14.5,17.5 12,20C9.5,17.5 8,14.5 8,12C8,9.5 9.5,6.5 12,4Z" />
-    <path d="M12,22V12" stroke="currentColor" strokeWidth="0.5" opacity="0.5" />
+    <path d="M12,22V12" stroke="currentColor" strokeWidth="0.5" opacity="0.3" />
   </svg>
 );
 
@@ -25,6 +25,7 @@ interface Leaf {
   size: string;
   opacity: number;
   rotation: string;
+  color: string;
 }
 
 const Hero = () => {
@@ -33,16 +34,17 @@ const Hero = () => {
   const [type, setType] = useState("all");
   const [leaves, setLeaves] = useState<Leaf[]>([]);
 
-  // Generate leaves only on client to prevent hydration mismatch
   useEffect(() => {
-    const newLeaves = [...Array(25)].map((_, i) => ({
+    const leafColors = ['#2D5A27', '#4A773C', '#1B3C1A', '#3D5229'];
+    const newLeaves = [...Array(30)].map((_, i) => ({
       id: i,
       left: `${Math.random() * 100}%`,
-      duration: `${15 + Math.random() * 20}s`,
+      duration: `${12 + Math.random() * 18}s`,
       delay: `${-Math.random() * 25}s`,
-      size: `${12 + Math.random() * 18}px`,
-      opacity: 0.1 + Math.random() * 0.4,
-      rotation: `${Math.random() * 360}deg`
+      size: `${10 + Math.random() * 15}px`,
+      opacity: 0.2 + Math.random() * 0.5,
+      rotation: `${Math.random() * 360}deg`,
+      color: leafColors[Math.floor(Math.random() * leafColors.length)]
     }));
     setLeaves(newLeaves);
   }, []);
@@ -63,12 +65,12 @@ const Hero = () => {
         <div className="absolute inset-0 bg-gradient-to-r from-[#002147] via-[#002147]/60 to-transparent" />
       </div>
 
-      {/* Realistic Falling Leaves */}
+      {/* Realistic Falling Green Leaves */}
       <div className="absolute inset-0 pointer-events-none z-10 overflow-hidden">
         {leaves.map((leaf) => (
           <LeafIcon 
             key={leaf.id}
-            className="absolute animate-leaf text-[#C5A059]"
+            className="absolute animate-leaf"
             style={{
               left: leaf.left,
               animationDuration: leaf.duration,
@@ -77,6 +79,7 @@ const Hero = () => {
               height: leaf.size,
               opacity: leaf.opacity,
               transform: `rotate(${leaf.rotation})`,
+              color: leaf.color
             }}
           />
         ))}
